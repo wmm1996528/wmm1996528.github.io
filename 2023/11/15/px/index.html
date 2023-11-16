@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"بحث...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="perimeterx px3 分析熟悉的环节工作需要搞一下只是 无感目标网站 1aHR0cHM6Ly93d3cuc3Bpcml0LmNvbS8&#x3D;  标志 会有好多这样的请求 基本就是px了 参数加解密会看到 payload 像是base64实际是base64编码后再次加密的结果追踪他的栈 会发现 是在这里生成的代码同时会发现 他的代码中有很多混淆的字符串可以通过 AST 处理一下得到这种容易读懂的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="perimeterx px3 无感 分析">
+<meta property="og:url" content="http://example.com/2023/11/15/px/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="perimeterx px3 分析熟悉的环节工作需要搞一下只是 无感目标网站 1aHR0cHM6Ly93d3cuc3Bpcml0LmNvbS8&#x3D;  标志 会有好多这样的请求 基本就是px了 参数加解密会看到 payload 像是base64实际是base64编码后再次加密的结果追踪他的栈 会发现 是在这里生成的代码同时会发现 他的代码中有很多混淆的字符串可以通过 AST 处理一下得到这种容易读懂的">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image0.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image1.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image2.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image-1.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image-2.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image-3.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image3.png">
+<meta property="article:published_time" content="2023-11-15T10:59:48.000Z">
+<meta property="article:modified_time" content="2023-11-16T02:39:27.778Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/11/15/px/image0.png">
+
+
+<link rel="canonical" href="http://example.com/2023/11/15/px/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"http://example.com/2023/11/15/px/","path":"2023/11/15/px/","title":"perimeterx px3 无感 分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>perimeterx px3 无感 分析 | 故意</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="تشغيل شريط التصفح" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">故意</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="بحث" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          المحتويات
+        </li>
+        <li class="sidebar-nav-overview">
+          عام
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#perimeterx-px3-%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">perimeterx px3 分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%87%E5%BF%97"><span class="nav-number">2.</span> <span class="nav-text">标志</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E5%8A%A0%E8%A7%A3%E5%AF%86"><span class="nav-number">2.1.</span> <span class="nav-text">参数加解密</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">故意</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">المقالات</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">التصنيفات</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/15/px/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="故意">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="故意">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="perimeterx px3 无感 分析 | 故意">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          perimeterx px3 无感 分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">نُشر في</span>
+
+      <time title="أُنشأ: 2023-11-15 18:59:48" itemprop="dateCreated datePublished" datetime="2023-11-15T18:59:48+08:00">2023-11-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">عُدل في</span>
+      <time title="عُدل: 2023-11-16 10:39:27" itemprop="dateModified" datetime="2023-11-16T10:39:27+08:00">2023-11-16</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="perimeterx-px3-分析"><a href="#perimeterx-px3-分析" class="headerlink" title="perimeterx px3 分析"></a>perimeterx px3 分析</h1><p>熟悉的环节<br>工作需要搞一下<br>只是 无感<br>目标网站</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aHR0cHM6Ly93d3cuc3Bpcml0LmNvbS8=</span><br></pre></td></tr></table></figure>
+
+<h1 id="标志"><a href="#标志" class="headerlink" title="标志"></a>标志</h1><p><img src="/2023/11/15/px/image0.png" alt="Alt text"><br><img src="/2023/11/15/px/image1.png" alt="Alt text"></p>
+<p>会有好多这样的请求 基本就是px了</p>
+<h2 id="参数加解密"><a href="#参数加解密" class="headerlink" title="参数加解密"></a>参数加解密</h2><p><img src="/2023/11/15/px/image2.png" alt="Alt text"><br>会看到 payload 像是base64<br>实际是base64编码后再次加密的结果<br><img src="/2023/11/15/px/image.png" alt="Alt text"><br>追踪他的栈 会发现 是在这里生成的代码<br><img src="/2023/11/15/px/image-1.png" alt="Alt text"><br><img src="/2023/11/15/px/image-2.png" alt="Alt text"><br>同时会发现 他的代码中有很多混淆的字符串<br>可以通过 AST 处理一下<br><img src="/2023/11/15/px/image-3.png" alt="Alt text"><br>得到这种容易读懂的代码 在进行分析<br>先来看看 payload 是怎么加密的</p>
+<p><img src="/2023/11/15/px/image3.png" alt="Alt text"><br>分析一下 就是 先把json字符串的每个字节 ^ 50 再转base64<br>然后再用uuid 获取一个字符串<br>再把第一步的 base64 分割插入 uuid 的字符串<br>再处理一下 就是结果的payload 了  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;do&quot;: null,</span><br><span class="line">    &quot;ob&quot;: &quot;B1lZWQcHWQcUNxgQDA0UW1tYFFsMUA1ZXFBRXFkMXQpdXwsJXF0LXlhdC1FdDl4MUVENCl9aUFlaXVpdCg4NX15aX19RXglcXVxQDQwMWlBcUF9SDREiWAk/WQQLWzoACjApAScCLVslLCkQJSwtWCc8PR8lLAxRFBwaHQ0UW1hYFhYWFllZWQdZBxRZUFpfWVlcWlxbWFFaXFheWF5bWBYWFhZZWVkHB1kUCwsUXlgUPVouHDI+JhgMLz1RPC8uXCcfVVUWFhYWB1lZB1lZBwcUXVxeUQ1QDl5FUFxaX0VZWQ0NRQpfXVhFW1gJXVkMCQ5QClBbFBwaHQ0WFhYWB1kHB1kHFAoNDFoLWVFYRVBcWl5FWVkNDUUJUV1YRQoMWF1QXAsNX14JURRbWV1bXlhYWBQcGh0NFhYWFgdZB1lZWRQLHRYWFhZZWQdZWVkUX1haCglbXwoLUQsJCl0NCloNXFgJDlsJC1leXl0OClpeUVwOUV1aCwpZWV8JXA1YXApcXgxYX1AOXF1cWQwKChYWFhYHWVkHWVkUXVxeUQ1dXQ1FUFxaX0VZWQ0NRQpfXVhFW1gJXVkMCQ5QClBbFhYWFllZWQcHWRQaDhReWBRZFhYWFgdZWVkHBwdZFFlfWFhZWFlcUV1YWF4WFhYWB1lZWQcHBwcUWVpRXxYWFhZZBwcHB1kUCwQJBhkcDwRdXRteWlwcGwcOXA8=&quot;</span><br><span class="line">&#125;</span><br><span class="line">```  </span><br><span class="line">返回结果这里看到的 ob 也是加密的  </span><br><span class="line">这个就比较简单了  </span><br><span class="line">base64 解码后 在 ^ (版本号 % 128)  </span><br><span class="line">当前版本号是 v8.7.2 就是 (872 % 128)   </span><br></pre></td></tr></table></figure>
+<p>[<br> “o1oo1o|957a2621-8427-11ee-bdb4-077351f73529|31536000|true”,<br> “11o111|79bce223313698a7586198b6ab78dc0d56e6f334b3d98ab8d36460a19a6fddda”,<br> “o11o11oo|96206fb1-8427-11ee-a5c7-ea6a94989dfc|true”,<br> “o1o111|cu”,<br> “o111ooo1|1700101605261”,<br> “111oo1|cc|60|U2FtZVNpdGU9TGF4Ow&#x3D;&#x3D;”,<br> “111o1o|15664779070372902995”,<br> “o11o11|96206bfe-8427-11ee-a5c7-ea6a94989dfc”,<br> “1oooo1|clanrpe6tl5m24stojmg”,<br> “o111oooo|292”,<br> “o111oo1o|_pxde|330|0dee1113d487bf7d78682188d959d13981ba17dcd2af8d264f7d5e6b6c9b2475:eyJ0aW1lc3RhbXAiOjE3MDAxMDE2MDUyNjF9|true|300”<br>]</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">这些值 就是后面参与计算的 一些值了  </span><br><span class="line">1oooo1 开头的这个值 代表他不同的计算逻辑   </span><br><span class="line">![Alt text](image5.png)  </span><br><span class="line">在代码中都可以看到    </span><br><span class="line">初始化完成后 就要去校验浏览器环境了   </span><br></pre></td></tr></table></figure>
+<p>{<br>    “t”: “PX11590”,<br>    “d”: {<br>        “PX11431”: “1700101605261”,<br>        “PX12454”: 292,<br>        “PX11701”: “15664779070372902995”,<br>        “PX11529”: 80457564,<br>        “PX11555”: 4294705152,<br>        “PX11833”: 61616059,<br>        “PX11840”: “Thu Nov 16 2023 10:26:45 GMT+0800 (China Standard Time)”,<br>        “PX12573”: “58baea05”,<br>        “PX11804”: “c93b435e78883931c991675c088777e3”,<br>        “PX12118”: “clanrpe6tl5m24stojmg”,<br>        “PX11746”: “71f68cf1450d0b31d397705dad72f593”,<br>        “PX11371”: “c73a8f6757304c8bee54230a32cf34ef”,<br>        “PX12501”: “8f5550519283f7b1591b0ea95f4e98ca”,<br>        “PX12169”: 3,<br>        “PX11902”: 1,<br>        “PX11560”: 12110,<br>        “PX11332”: 1700101626566,<br>        “PX12248”: 3600,<br>        “PX11385”: 1700101604530,<br>        “PX12280”: 1700101627175,<br>        “PX11496”: “03642cf8-0fe5-4c04-b842-1334ee0458f4”,<br>        “PX12330”: “109|66|66|70|80”,<br>        “PX11705”: 1182,<br>        “PX11938”: true,<br>        “PX11602”: true,<br>        “PX12021”: “false”,<br>        “PX12421”: “false”,<br>        “PX12124”: 1,<br>        “PX11609”: 1,<br>        “PX12291”: “”,<br>        “PX11881”: [<br>            “loadTimes”,<br>            “csi”,<br>            “app”<br>        ],<br>        “PX12207”: 0,<br>        “PX11538”: 2,<br>        “PX11984”: “TypeError: Cannot read properties of null (reading ‘0’)\n    at de (<a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:796:13)/n">https://client.px-cloud.net/PXVb73hTEg/main.min.js:796:13)\n</a>    at Eo (<a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:2294:31)/n">https://client.px-cloud.net/PXVb73hTEg/main.min.js:2294:31)\n</a>    at Co (<a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:2316:23)/n">https://client.px-cloud.net/PXVb73hTEg/main.min.js:2316:23)\n</a>    at <a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:2152:9">https://client.px-cloud.net/PXVb73hTEg/main.min.js:2152:9</a>“,<br>        “PX11645”: “<a target="_blank" rel="noopener" href="https://www.spirit.com/">https://www.spirit.com/</a>“,<br>        “PX11597”: [],<br>        “PX12023”: “”,<br>        “PX11337”: false,<br>        “PX12544”: true,<br>        “PX12589”: “succeeded”,<br>        “PX11524”: true,<br>        “PX11843”: 1920,<br>        “PX11781”: 1080,<br>        “PX12121”: 1920,<br>        “PX12128”: 1055,<br>        “PX12387”: “1920X1080”,<br>        “PX12003”: 24,<br>        “PX11380”: 24,<br>        “PX11494”: 906,<br>        “PX12411”: 853,<br>        “PX12443”: 0,<br>        “PX12447”: 0,<br>        “PX11533”: true,<br>        “PX12079”: false,<br>        “PX12278”: true,<br>        “PX11694”: false,<br>        “PX12294”: false,<br>        “PX12514”: true,<br>        “PX12515”: “TypeError: Cannot read properties of undefined (reading ‘width’)”,<br>        “PX12516”: “webkit”,<br>        “PX12517”: 33,<br>        “PX12518”: false,<br>        “PX12545”: false,<br>        “PX12593”: false,<br>        “PX12595”: “AudioData.SVGAnimatedAngle.SVGMetadataElement”,<br>        “PX12069”: [<br>            “PDF Viewer”,<br>            “Chrome PDF Viewer”,<br>            “Chromium PDF Viewer”,<br>            “Microsoft Edge PDF Viewer”,<br>            “WebKit built-in PDF”<br>        ],<br>        “PX12286”: 5,<br>        “PX11576”: true,<br>        “PX12318”: true,<br>        “PX11384”: true,<br>        “PX11886”: true,<br>        “PX11583”: “en-US”,<br>        “PX12458”: “MacIntel”,<br>        “PX11681”: [<br>            “en-US”<br>        ],<br>        “PX11754”: “UA”,<br>        “PX12037”: true,<br>        “PX11390”: -480,<br>        “PX11621”: 8,<br>        “PX11657”: 1,<br>        “PX12081”: “Gecko”,<br>        “PX11908”: “20030107”,<br>        “PX12314”: “”,<br>        “PX11829”: true,<br>        “PX11464”: true,<br>        “PX12054”: 2,<br>        “PX11821”: “Netscape”,<br>        “PX11479”: “Mozilla”,<br>        “PX11674”: true,<br>        “PX12241”: 400,<br>        “PX11372”: false,<br>        “PX11683”: 1.5,<br>        “PX11561”: “3g”,<br>        “PX11877”: true,<br>        “PX12100”: true,<br>        “PX12506”: “arm”,<br>        “PX12507”: “64”,<br>        “PX12509”: false,<br>        “PX12510”: “”,<br>        “PX12511”: “macOS”,<br>        “PX12512”: “13.5.0”,<br>        “PX12513”: “117.0.5938.149”,<br>        “PX12548”: true,<br>        “PX12578”: {},<br>        “PX12579”: {<br>            “support”: true,<br>            “status”: {<br>                “effectiveType”: “3g”,<br>                “rtt”: 400,<br>                “downlink”: 1.5,<br>                “saveData”: false<br>            }<br>        },<br>        “PX12508”: [{<br>                “brand”: “Google Chrome”,<br>                “version”: “117”<br>            },<br>            {<br>                “brand”: “Not;A&#x3D;Brand”,<br>                “version”: “8”<br>            },<br>            {<br>                “brand”: “Chromium”,<br>                “version”: “117”<br>            }<br>        ],<br>        “PX12549”: true,<br>        “PX11539”: “sss”,<br>        “PX11528”: “”,<br>        “PX12271”: “sss”,<br>        “PX11849”: “ss”,<br>        “PX12464”: “ss”,<br>        “PX11356”: true,<br>        “PX12426”: true,<br>        “PX11791”: true,<br>        “PX11517”: true,<br>        “PX12520”: true,<br>        “PX12524”: “4YC14YCd4Y6YaI5oCR7r27”,<br>        “PX12527”: “3207084bd110863e23aa78e04”,<br>        “PX12260”: “UA”,<br>        “PX12249”: false,<br>        “PX11897”: “90e65465”,<br>        “PX12597”: 1,<br>        “PX11526”: false,<br>        “PX11684”: false,<br>        “PX11812”: false,<br>        “PX12335”: true,<br>        “PX12080”: 0,<br>        “PX11678”: false,<br>        “PX11349”: “visible”,<br>        “PX12397”: false,<br>        “PX11387”: 0,<br>        “PX12150”: 1920,<br>        “PX12304”: true,<br>        “PX11651”: 970,<br>        “PX11867”: “missing”,<br>        “PX12254”: true,<br>        “PX11540”: true,<br>        “PX11548”: false,<br>        “PX11446”: true,<br>        “PX12550”: 1,<br>        “PX12431”: 0,<br>        “PX11991”: 10,<br>        “PX11837”: 48,<br>        “PX11632”: 0,<br>        “PX11409”: 9,<br>        “PX11508”: “49e5084e”,<br>        “PX11452”: “7c5f9724”,<br>        “PX12218”: “65d826e0”,<br>        “PX12481”: “a9269e00”,<br>        “PX11780”: “50a5ec55”,<br>        “PX12551”: “https:”,<br>        “PX12553”: “Asia&#x2F;Shanghai”,<br>        “PX12567”: “w3c”,<br>        “PX12576”: “screen”,<br>        “PX12554”: “function getOwnPropertyDescriptors() { [native code] }”,<br>        “PX12577”: “function query() { [native code] }”,<br>        “PX12594”: false,<br>        “PX12566”: false,<br>        “PX12571”: “74d9c66”,<br>        “PX12581”: “default”,<br>        “PX11303”: false,<br>        “PX11515”: false,<br>        “PX12133”: false,<br>        “PX12340”: false,<br>        “PX11738”: false,<br>        “PX11723”: false,<br>        “PX11389”: false,<br>        “PX11839”: false,<br>        “PX11460”: false,<br>        “PX12102”: false,<br>        “PX11378”: false,<br>        “PX12317”: false,<br>        “PX12564”: null,<br>        “PX12565”: -1,<br>        “2655744:343041:31::6”: “3744655;252150;20;;7”<br>    }<br>}]</p>
+<pre><code>有些值 是根据上个请求的返回值 计算的  
+![Alt text](image7.png)  
+
+就是这么去跟  然后发两到 三个请求  
+![Alt text](image8.png)  
+看到 score = 0 就是过了   
+这个socre 不是每个站都有的 并不一定给你这个  
+看到px2也是基本成功的标志  
+
+# 结束 
+
+这个网站是 px 和akamai 都有的 所以测试时比较麻烦  
+
+下一步要去捣鼓捣鼓 按压的验证码了  
+希望顺利  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+</code></pre>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/09/20/shape-bypass/" rel="prev" title="shape-bypass">
+                  <i class="fa fa-angle-left"></i> shape-bypass
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">故意</span>
+  </div>
+  <div class="powered-by">تطبيق الموقع <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

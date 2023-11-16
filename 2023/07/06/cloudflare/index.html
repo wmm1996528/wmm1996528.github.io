@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha256-CTSx/A06dm1B063156EVh15m6Y67pAjZZaQc89LLSrU=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.18.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"بحث...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="前言工作中遇到了有这个的网站 所以来搞一下目标网址   1aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8&#x3D;  分析请求先看看整体的流程 拿到最后的 cf_clearance cookie 就是验证通过了  第一步 初始化页面页面内容 需要获取 _cf_chl_opt 这个中的部分值和 md 在最后一步post 请求中会用到md_cf_chl_opt.cRay  拼接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cloudflare">
+<meta property="og:url" content="http://example.com/2023/07/06/cloudflare/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="前言工作中遇到了有这个的网站 所以来搞一下目标网址   1aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8&#x3D;  分析请求先看看整体的流程 拿到最后的 cf_clearance cookie 就是验证通过了  第一步 初始化页面页面内容 需要获取 _cf_chl_opt 这个中的部分值和 md 在最后一步post 请求中会用到md_cf_chl_opt.cRay  拼接">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/liucheng.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/html1.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/post.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/normal.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/envstr.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/envjson.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/pic.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/click.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/token.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/postsh.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/cf.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/realhtml.png">
+<meta property="article:published_time" content="2023-07-06T03:59:49.000Z">
+<meta property="article:modified_time" content="2023-11-16T02:10:48.165Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/07/06/cloudflare/liucheng.png">
+
+
+<link rel="canonical" href="http://example.com/2023/07/06/cloudflare/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-Hans","comments":true,"permalink":"http://example.com/2023/07/06/cloudflare/","path":"2023/07/06/cloudflare/","title":"cloudflare"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>cloudflare | 故意</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="تشغيل شريط التصفح" role="button">
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">故意</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="بحث" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          المحتويات
+        </li>
+        <li class="sidebar-nav-overview">
+          عام
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E8%AF%B7%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">分析请求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5-%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B5%E9%9D%A2"><span class="nav-number">2.0.1.</span> <span class="nav-text">第一步 初始化页面</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5"><span class="nav-number">2.0.2.</span> <span class="nav-text">第二步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5-normal"><span class="nav-number">2.0.3.</span> <span class="nav-text">第三步 normal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5-%E7%8E%AF%E5%A2%83%E6%A0%A1%E9%AA%8C"><span class="nav-number">2.0.4.</span> <span class="nav-text">第四步 环境校验</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%94%E6%AD%A5-%E8%8E%B7%E5%8F%96-cf-clearance"><span class="nav-number">2.0.5.</span> <span class="nav-text">第五步 获取 cf_clearance</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">注意事项</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">故意</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">المقالات</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">التصنيفات</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/07/06/cloudflare/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="故意">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="故意">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="cloudflare | 故意">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cloudflare
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">نُشر في</span>
+
+      <time title="أُنشأ: 2023-07-06 11:59:49" itemprop="dateCreated datePublished" datetime="2023-07-06T11:59:49+08:00">2023-07-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">عُدل في</span>
+      <time title="عُدل: 2023-11-16 10:10:48" itemprop="dateModified" datetime="2023-11-16T10:10:48+08:00">2023-11-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">في</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/JS%E9%80%86%E5%90%91/" itemprop="url" rel="index"><span itemprop="name">JS逆向</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>工作中遇到了有这个的网站 所以来搞一下<br>目标网址  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8=</span><br></pre></td></tr></table></figure>
+
+<h1 id="分析请求"><a href="#分析请求" class="headerlink" title="分析请求"></a>分析请求</h1><p>先看看整体的流程</p>
+<p><img src="/2023/07/06/cloudflare/liucheng.png"><br>拿到最后的 cf_clearance cookie 就是验证通过了 </p>
+<h3 id="第一步-初始化页面"><a href="#第一步-初始化页面" class="headerlink" title="第一步 初始化页面"></a>第一步 初始化页面</h3><p><img src="/2023/07/06/cloudflare/html1.png"><br>页面内容 需要获取 _cf_chl_opt 这个中的部分值<br>和 md 在最后一步post 请求中会用到md<br>_cf_chl_opt.cRay  拼接 要请求的JS 地址</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self._js_1_url = <span class="string">f&#x27;***/cdn-cgi/challenge-platform/h/<span class="subst">&#123;cFPWv&#125;</span>/orchestrate/managed/v1?ray=<span class="subst">&#123;cRay&#125;</span>&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>大部分都是这个格式</p>
+<h3 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h3><p>第一步的 JS 会发生一个  post 请求<br>地址为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;platform/h/g/flow/ov1/733297980:1688606447:HQv3MvVys5gnB9nrg2GMxuQz8eKvxSMvzd6FTHs5B0E/7e245d2bee981840/5efdbf7ebbe3f50&#x27;</span></span><br><span class="line"><span class="string">f&#x27;https://***/cdn-cgi/challenge-platform/h/g/flow/ov1/<span class="subst">&#123;js中的某个值&#125;</span>/cRay/<span class="subst">&#123;cHash&#125;</span>&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>发送数据为 </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;chReq&quot;</span><span class="punctuation">:</span> <span class="string">&quot;managed&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;cNounce&quot;</span><span class="punctuation">:</span> <span class="string">&quot;40056&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;cvId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chC&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chCAS&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;oV&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;cRq&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;ru&quot;</span><span class="punctuation">:</span> <span class="string">&quot;aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;ra&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNC4wLjAuMCBTYWZhcmkvNTM3LjM2&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;rm&quot;</span><span class="punctuation">:</span> <span class="string">&quot;R0VU&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;d&quot;</span><span class="punctuation">:</span> <span class="string">&quot;KFSDJOFVmoj82BwR/FXAvmyHO7c0OIEUpTl6E7f8AtMMuXL+tcWhwUaEEI98z3C93JqXNA1QR+jWncGHtDEbC2d2g8m1nXikiEBO3waPXKbD+H1nSP/j6FYAqwl3gt7VP82rQuCrT/jbrLTmmcB/7QqpEVkVjLblzG3ZU91rJlT5Z7t9qS8mkh8TqpRS2589EJnLP52yxugQ8Uypom6B2WevozesJ0HHfqFwKj/n2rGekZMqaztprT09EDkog+C+d+sVTTe1JKfEgMFiLUDh4q2+kNFj2sGdGwnHmDFXFOHSmE0pV4+R115loViUuKy6Is3xk3uHM5r0r74KLXgCLcIiW2thrlFLCSe6EjLKV5hL0KKTygnMEyjvSVbNRriyzL747LwIH1HvpUx2+5BZxrIsZW6ehoBbalCipgy8qtdOTNGD2J9IsLdO0vApORMAoAX3ag8nwYE1XNnwWMPreAaPqLSmV9FG9ScOJcsc3eQW6lE30I515+QGfKodTrrXr2wv9vKcAJ/7bkNkq8aETDdWPFsMDwri0h522yC0dUIBiqU3G0K3rajfotir2yH3BHj9RVQg+Fu9nRyyXfgsbN8PPofxWwVRMqLiclJZszxhIkt/g1g237Sv6O1jmam3&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;t&quot;</span><span class="punctuation">:</span> <span class="string">&quot;MTY4ODYxMTM3NC44MDAwMDA=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;cT&quot;</span><span class="punctuation">:</span> <span class="number">1688611374</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;m&quot;</span><span class="punctuation">:</span> <span class="string">&quot;kw/e2dwgtrWr9v84KaUNpllMVkA+9E5Bs7IfWyHDsWs=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;i1&quot;</span><span class="punctuation">:</span> <span class="string">&quot;gZG6zyNbCiGlwncYw4DBaA==&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;i2&quot;</span><span class="punctuation">:</span> <span class="string">&quot;vbHMdj8uMdxJnpRkQs9y4g==&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;zh&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Y3OoAsWGs8ShmcO7iHaBto+gGoelE8ZB/pf+9RpLrwo=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;uh&quot;</span><span class="punctuation">:</span> <span class="string">&quot;xR8CtO7r16zI2pMrrz9IVIrV+K1oemYOymcQjo5KlbY=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;hh&quot;</span><span class="punctuation">:</span> <span class="string">&quot;T0wGGEaOTl1FXca+/ZzlgBao5CR/fBMfjzoqcDV4/cw=&quot;</span></span><br><span class="line">	<span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;ie&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;kd&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;pm&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;po&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;mm&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;cl&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;t&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">	<span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;wPr&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;if&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;ffs&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>都是第一步提取的<br>加密后 再发出去<br><img src="/2023/07/06/cloudflare/post.png"><br>name &#x3D; v_{cRay}<br>因为返回的数据 需要用 cRay 解密<br>每次post 数据格式都这样 就不过多说明了</p>
+<h3 id="第三步-normal"><a href="#第三步-normal" class="headerlink" title="第三步 normal"></a>第三步 normal</h3><p>需要请求一个 后缀为normal 的html 页面</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/if/ov2/av0/rcv0/0/h4gmc/0x4AAAAAAADnPIDROrmt1Wwj/dark/normal&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># h4gmc 随机五位字符</span></span><br><span class="line"><span class="comment"># 0x4AAAAAAADnPIDROrmt1Wwj 为 网站的key  固定的</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2023/07/06/cloudflare/normal.png"><br>还是需要 cray 和 chash 和部分参数<br>在根据 cray 请求第二次的js<br>要加密的数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">	<span class="attr">&quot;chReq&quot;</span><span class="punctuation">:</span> <span class="string">&quot;chl_api_m&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;cNounce&quot;</span><span class="punctuation">:</span> <span class="string">&quot;28481&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;cvId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chC&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chCAS&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;oV&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;cRq&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;ru&quot;</span><span class="punctuation">:</span> <span class="string">&quot;aHR0cDovL2NoYWxsZW5nZXMuY2xvdWRmbGFyZS5jb20vY2RuLWNnaS9jaGFsbGVuZ2UtcGxhdGZvcm0vaC9nL3R1cm5zdGlsZS9pZi9vdjIvYXYwL3JjdjAvMC9qaHk2YS8weDRBQUFBQUFBRG5QSURST3JtdDFXd2ovZGFyay9ub3JtYWw=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;ra&quot;</span><span class="punctuation">:</span> <span class="string">&quot;TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNC4wLjAuMCBTYWZhcmkvNTM3LjM2&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;rm&quot;</span><span class="punctuation">:</span> <span class="string">&quot;R0VU&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;d&quot;</span><span class="punctuation">:</span> <span class="string">&quot;iTfgNjLhgpaI0mwE+Hoyjm3sRdbCSqUZqoJQPIObCxGSElpFFhNCvf/xyPhECrj4Yo1sdMNMfnviK37oFIKrzN9+C6hHQPds4sGcrMlTGaf4cMmRFh1x9Jt1h3QGas0IVBVgqNDzBVv/s2dE3502O3CiVY2ruKe0fWPfrAl8TT7CtGUnOpK871hMeQKbbSg708DGaeDDiatz4lIgJxxFbVdcOEEAHXBGRF6s29RfMYM9pIb09K2AbaDO9ORxyrbddR7AbbcGgpXUA9Mnfz3bQvLp1P+QL4apvpC+2RPIDMucP5IgJDw4ytAW6cwfv9EHIJsrkZs69aEXuFZLqm/Bq/yEDPNrs9N0nSFERQmUwMsQ8xwkZTg+W/XMO9tK63mdkMEF9sExxw9sN2yFhkkBMOqECC/L8ZValqfKKKRhMfovcexhLi4TxBJ6eMLKF0ZSX5JI2bGOPQS1tKhLnhtYh+c5KiGPU4jA8xrQKLJVAkEJLieOpP3lIpXGXKD3nFqZAl1CgS6r+OawJxK/A88f4s3DpNGQlP4BI4QJ10P/32M=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;t&quot;</span><span class="punctuation">:</span> <span class="string">&quot;MTY4ODYxMTQ0MC44NzE=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;m&quot;</span><span class="punctuation">:</span> <span class="string">&quot;VS9+Gsyx7EPMX6/gVYBpyiwfLlVGmC7T38bmHs3RAhU=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;i1&quot;</span><span class="punctuation">:</span> <span class="string">&quot;9k9pl1+0xD1jrTpl9UA/bw==&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;i2&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hG8J/PtG3f4yyO74nwUikg==&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;uh&quot;</span><span class="punctuation">:</span> <span class="string">&quot;xR8CtO7r16zI2pMrrz9IVIrV+K1oemYOymcQjo5KlbY=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;hh&quot;</span><span class="punctuation">:</span> <span class="string">&quot;WCiLdNo2uN2aXsfJJhG2HFkP3bOo0fw8tsFAppLisvs=&quot;</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;zh&quot;</span><span class="punctuation">:</span> <span class="string">&quot;9D+zbxCfwBPyr1pF5Wb5E9kRItcGU2xCgzO1zGTKToQ=&quot;</span></span><br><span class="line">	<span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;ie&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">		<span class="attr">&quot;kd&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;pm&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;po&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;mm&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;cl&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">		<span class="attr">&quot;t&quot;</span><span class="punctuation">:</span> <span class="number">0</span></span><br><span class="line">	<span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;wPr&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;if&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;ffs&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApivId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiWidgetId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jhy6a&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiSitekey&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0x4AAAAAAADnPIDROrmt1Wwj&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiAction&quot;</span><span class="punctuation">:</span> <span class="string">&quot;managed&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApicData&quot;</span><span class="punctuation">:</span> <span class="string">&quot;7e247f446c5b3ad6&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiChlPageData&quot;</span><span class="punctuation">:</span> <span class="string">&quot;3gAFo2l2MbhwV2FqUDdWcmMva2s3NXF1Zk0zVWRRPT2jaXYyuGwzcFdYcGJVSzV5Y3VIWnBWaFEvWXc9PaFk2gEsMVdTTzFCK3pkTG9JMEZ3eXRIVk9qNVFSRWZQOEd4RWRIMkcvMFdjL0c2ekt0WStBNnY0Y0dqczh2d3h5eUdUOHJzT1ltQUVtNjFDQWFQRVJvTGlxYjlpaGVUOHFXS3BBT1JSbkVlMHRxSmlwdjV0M0ZIVmJjcHJkRU5yekllbWpXaDIySjF2dWZoeFJKajVnSWtWNG5HOTBEK0dYNTArbDFZVWY2Ukdic3UwOWNHYW1TUGpTN1N1dEIvYWNlUHVzL0FqMmlxcUhKSzJlY0JJcHBybm92a2ExYXdLbkxwK0VNVy8xZkh0QlhseVA1Z3pNeks2bjliRk9Pd210ODZsZWpqUTIvdVFXRHg2aVdyMGpocjRzQzdjL3YyTFlVSFd5aDZUYnZKYU14d009oW3ZLDlyQjROb0NKOXo4Qmw0YXkzWmNZNUJiMnV0NWJmMlBmOE1OVjZZd2JZT2s9oXS0TVRZNE9EWXhNVFF6Tnk0NU1qZz0=&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiACCH&quot;</span><span class="punctuation">:</span> <span class="string">&quot;19b997cb&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiUrl&quot;</span><span class="punctuation">:</span> <span class="string">&quot;初始化地址&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiOrigin&quot;</span><span class="punctuation">:</span> <span class="string">&quot;初始化地址&quot;</span><span class="punctuation">,</span></span><br><span class="line">	<span class="attr">&quot;chlApiRcV&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1/fif1NcEDXIlC2ll&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="comment">// pageData 是这步js 中的 </span></span><br><span class="line"><span class="comment">// chlApicData 是第一步的cray 应该是要做关联的</span></span><br></pre></td></tr></table></figure>
+<p>加密后在发出  会返回 一个长字符串<br><img src="/2023/07/06/cloudflare/envstr.png"><br>一般长度会在 十几万到二十几万之间<br>解密后  有两种分支  w.startsWith(‘window._‘)  根据开头字符判断<br>格式一 明文代码分支    这个就简单了<br>格式二 vmp 分支 所有代码会进入vmp 中执行<br>这步就是最难得步骤了 环境校验</p>
+<h3 id="第四步-环境校验"><a href="#第四步-环境校验" class="headerlink" title="第四步 环境校验"></a>第四步 环境校验</h3><p>拿到上面的代码后<br>我是通过补环境的方式过的<br>因为 经过测试 需要校验的环境 点和 顺序是不一样的 导致无法通过还原算法的方式执行<br>也不排除有大神可以直接还原 反正我做不到..<br><img src="/2023/07/06/cloudflare/envjson.png"><br>基本上就是 十几个到二十个校验点<br>其中只有第一个是固定的.. 其他都会变化<br><img src="/2023/07/06/cloudflare/pic.png"><br>值得注意的一点是 他会请求一张图片<br>获取图片的宽高<br><a target="_blank" rel="noopener" href="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/img/7e245d3fd8b72bbd/1688609982279/SSIWaTPNMJAQEpP">https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/img/7e245d3fd8b72bbd/1688609982279/SSIWaTPNMJAQEpP</a></p>
+<p>如上 获取完环境数据 在和之前一样 进行加密发送<br>也是有两种分支 </p>
+<ol>
+<li>校验通过 返回的 字符串解密后长度在1000-5000内 可以获得token</li>
+<li>长度为10000以上 是需要进行再次的点击验证<br> <img src="/2023/07/06/cloudflare/click.png"><br> 点击验证就是在上面的 十几个环境后再加一个<br> 然后再判断是否通过<br> 解密后字符串长度在1000内就是失败了</li>
+</ol>
+<h3 id="第五步-获取-cf-clearance"><a href="#第五步-获取-cf-clearance" class="headerlink" title="第五步 获取 cf_clearance"></a>第五步 获取 cf_clearance</h3><p>如果环境通过 拿到token 后 需要在发送一次 获取 sh aw 三个参数<br><img src="/2023/07/06/cloudflare/token.png"></p>
+<p>再向初始化页面 post 四个参数<br><img src="/2023/07/06/cloudflare/postsh.png"><br>就可以拿到<br><img src="/2023/07/06/cloudflare/cf.png"><br>和正常的页面代码了<br><img src="/2023/07/06/cloudflare/realhtml.png"><br>至此 验证就结束了<br>就可以拿着 cookie 去请求了</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>目前这个网站测试的是 需要保持 ip tls ua 完全一致<br>破解时使用什么 再次使用时就需要用完全一样的 ip  tls 指纹和 ua</p>
+<p>环境校验时 有一个fetch 请求 和 图片请求 都需要发出<br>图片请求不发 百分百失败</p>
+<p>调试时 需要注意 他对于时间的控制 很严格 页面调试时 动不动就超时 失败…</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/09/20/shape-bypass/" rel="next" title="shape-bypass">
+                  shape-bypass <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2023</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">故意</span>
+  </div>
+  <div class="powered-by">تطبيق الموقع <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
