@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="perimeterx px3  按压验证码 分析接上文的 按压验证码分析       开始进入流程分析1. 初始化看着大概请求和无感时差不多 实际也是一样的 初始化和按压验证的数据 都是从无感那边的js 发出的 甚至初始化前两部验证的东西都一样 ![初始化验证](2.png) 123456789101112131415161718192021[&amp;#123;    &quot;t&quot;: &amp;q">
+<meta property="og:type" content="article">
+<meta property="og:title" content="perimeterx px3  按压验证码 分析">
+<meta property="og:url" content="http://example.com/2023/12/14/px-touch/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="perimeterx px3  按压验证码 分析接上文的 按压验证码分析       开始进入流程分析1. 初始化看着大概请求和无感时差不多 实际也是一样的 初始化和按压验证的数据 都是从无感那边的js 发出的 甚至初始化前两部验证的东西都一样 ![初始化验证](2.png) 123456789101112131415161718192021[&amp;#123;    &quot;t&quot;: &amp;q">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/1.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/3.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/4.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/px11547.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/px12123.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/px12419.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/px561.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/px11782.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/res.png">
+<meta property="og:image" content="http://example.com/2023/12/14/px-touch/js.png">
+<meta property="article:published_time" content="2023-12-14T14:46:15.000Z">
+<meta property="article:modified_time" content="2023-12-14T15:33:13.551Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2023/12/14/px-touch/1.png">
+
+<link rel="canonical" href="http://example.com/2023/12/14/px-touch/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>perimeterx px3  按压验证码 分析 | 故意</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">故意</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/14/px-touch/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="故意">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="故意">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          perimeterx px3  按压验证码 分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2023-12-14 22:46:15 / Modified: 23:33:13" itemprop="dateCreated datePublished" datetime="2023-12-14T22:46:15+08:00">2023-12-14</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="perimeterx-px3-按压验证码-分析"><a href="#perimeterx-px3-按压验证码-分析" class="headerlink" title="perimeterx px3  按压验证码 分析"></a>perimeterx px3  按压验证码 分析</h1><p>接上文的 按压验证码分析  </p>
+<p><img src="/2023/12/14/px-touch/1.png" alt="验证码样式">  </p>
+<hr>
+<h2 id="开始进入流程分析"><a href="#开始进入流程分析" class="headerlink" title="开始进入流程分析"></a>开始进入流程分析</h2><h4 id="1-初始化"><a href="#1-初始化" class="headerlink" title="1. 初始化"></a>1. 初始化</h4><pre><code>看着大概请求和无感时差不多 实际也是一样的
+初始化和按压验证的数据 都是从无感那边的js 发出的
+甚至初始化前两部验证的东西都一样
+![初始化验证](2.png)
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">&#123;</span><br><span class="line">    &quot;t&quot;: &quot;PX12095&quot;,</span><br><span class="line">    &quot;d&quot;: &#123;</span><br><span class="line">        &quot;PX11645&quot;: &quot;https://url&quot;,</span><br><span class="line">        &quot;PX12207&quot;: 0,</span><br><span class="line">        &quot;PX12458&quot;: &quot;MacIntel&quot;,</span><br><span class="line">        &quot;PX11902&quot;: 0,</span><br><span class="line">        &quot;PX11560&quot;: 198,</span><br><span class="line">        &quot;PX12248&quot;: 3600,</span><br><span class="line">        &quot;PX11385&quot;: 1702565337810,</span><br><span class="line">        &quot;PX12280&quot;: 1702565337831,</span><br><span class="line">        &quot;PX11496&quot;: &quot;6fa01e60-9997-11ee-ba04-19528ba2f4ae&quot;,</span><br><span class="line">        &quot;PX12564&quot;: null,</span><br><span class="line">        &quot;PX12565&quot;: -1,</span><br><span class="line">        &quot;PX11379&quot;: false,</span><br><span class="line">        &quot;PX12307&quot;: &quot;PX11745&quot;,</span><br><span class="line">        &quot;PX11668&quot;: &quot;pxhc&quot;,</span><br><span class="line">        &quot;PX12348&quot;: false</span><br><span class="line">    &#125;</span><br><span class="line">&#125;]</span><br></pre></td></tr></table></figure>
+这就是初始化的数据 payload 原文  
+他的返回会多五组数据
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">    &quot;o11o11|ed3f124d-9a8f-11ee-a58c-3d04af16cd30&quot;, // sid</span><br><span class="line">    &quot;o111ooo1|1702565344671&quot;, // ts</span><br><span class="line">    &quot;111o1o|10455894763209661329&quot;,</span><br><span class="line">    &quot;11o111|0bf0a5e848f4163462cfc8e37fdeb630b409bb7f0d197243e05fa4533e8980e5&quot;,</span><br><span class="line">    &quot;o1oo11|1|55a9d403f63f511ca23d69056784b7bf6fc124b64d4eb20cf93fc42ce559e|d143f3cb6974dd161c0eb1562b66e7d4d8e6c42e0112beb9002403d7eb173881|12|false&quot;,</span><br><span class="line">    &quot;1o1oo1|ccc:0,ccc:0&quot;,</span><br><span class="line">    &quot;111oo1|rf|60|1&quot;,</span><br><span class="line">    &quot;o11o11oo|ed3f179a-9a8f-11ee-a58c-3d04af16cd30|true&quot;,</span><br><span class="line">    &quot;11oo1o|1|ed43d2f0-9a8f-11ee-8a5b-4b4fa8298b06|6627| 201136fc0b1100a0b92d1dda0b11993f3ba6c4ab5a8d0a49e82abf8505eb37ecd8367c28c6304e775b8069bbb46a2373120dadb696c76674123110f36fb11258_2&gt;&lt;3|0|NA&quot;,</span><br><span class="line">    &quot;o111oooo|9155&quot;,</span><br><span class="line">    &quot;o1o111|cu&quot;,</span><br><span class="line">    &quot;111oo1|cc|60|U2FtZVNpdGU9TGF4Ow==&quot;,</span><br><span class="line">    &quot;111oo1|fp|60|1&quot;,</span><br><span class="line">    &quot;1oooo1|clthbo55gct9ocem3ogg&quot;,</span><br><span class="line">    &quot;o1oo1o|ed3efc06-9a8f-11ee-a58c-b6abdf9e29d7|31536000|true&quot;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+分别对应不同的用途
+用来后续的校验
+</code></pre>
+<h4 id="2-第一步环境校验"><a href="#2-第一步环境校验" class="headerlink" title="2. 第一步环境校验"></a>2. 第一步环境校验</h4><p>   这步和无感的基本一样<br>   就不细说了<br>   都是PX11590的类型</p>
+<h4 id="3-长按-按压验证"><a href="#3-长按-按压验证" class="headerlink" title="3. 长按 按压验证"></a>3. 长按 按压验证</h4><p><img src="/2023/12/14/px-touch/3.png"><br>这步发的数据 有就亿点点多了  </p>
+<p><img src="/2023/12/14/px-touch/4.png" alt="Alt text"></p>
+<p>需要按类型去说<br>PX11547<br>对应的基本是 canvas 和gpu 相关信息</p>
+<p><img src="/2023/12/14/px-touch/px11547.png"></p>
+<p>PX12123<br>鼠标按压的x y 值 和 一些其他<br><img src="/2023/12/14/px-touch/px12123.png"></p>
+<p>PX12419<br>鼠标相关的一些东西 算是简短数据<br><img src="/2023/12/14/px-touch/px12419.png"></p>
+<p>PX561<br>这是最关键的key了 这个对了就过了<br><img src="/2023/12/14/px-touch/px561.png"><br>就靠自己分析了 没法说了</p>
+<p>PX11782<br>这没啥好说的 没啥玩意儿<br><img src="/2023/12/14/px-touch/px11782.png" alt="Alt text"></p>
+<h2 id="校验结果"><a href="#校验结果" class="headerlink" title="校验结果"></a>校验结果</h2><p><img src="/2023/12/14/px-touch/res.png" alt="Alt text"></p>
+<p>o11o111o 这个值 0就是过 -1 就是没过</p>
+<h1 id="完结"><a href="#完结" class="headerlink" title="完结"></a>完结</h1><p>带一个代码请求<br><img src="/2023/12/14/px-touch/js.png" alt="Alt text"></p>
+<p>对了 这里面有 wasm 去计算一个值<br>就在 px561 中 </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">let r = call_12590_12610(this.uuid, this.hash, this.hash2, this.hashv)</span><br><span class="line">let px1132 = r[0] // hash计算值 </span><br><span class="line">let px12590 = r[1] // wasm 1</span><br><span class="line">let px12610 = r[2] // wasm 2</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&quot;PX12589&quot;: &quot;succeeded&quot;, // wasm 相关 先写死吧</span><br><span class="line">&quot;PX12590&quot;: px12590,</span><br><span class="line">&quot;PX12610&quot;: px12610, // end  wasm 耗时</span><br><span class="line">&quot;PX12504&quot;: randint(12008, 15008),</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/15/px/" rel="prev" title="perimeterx px3 无感 分析">
+      <i class="fa fa-chevron-left"></i> perimeterx px3 无感 分析
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#perimeterx-px3-%E6%8C%89%E5%8E%8B%E9%AA%8C%E8%AF%81%E7%A0%81-%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">perimeterx px3  按压验证码 分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E8%BF%9B%E5%85%A5%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">开始进入流程分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">1. 初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E7%AC%AC%E4%B8%80%E6%AD%A5%E7%8E%AF%E5%A2%83%E6%A0%A1%E9%AA%8C"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">2. 第一步环境校验</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%95%BF%E6%8C%89-%E6%8C%89%E5%8E%8B%E9%AA%8C%E8%AF%81"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">3. 长按 按压验证</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%A1%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="nav-number">1.2.</span> <span class="nav-text">校验结果</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%8C%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">完结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">故意</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">故意</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
