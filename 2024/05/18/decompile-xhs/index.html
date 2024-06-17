@@ -1,0 +1,729 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="故意">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="目前在JS 方面常见的保护方式  代码混淆 类似ob混淆 jsfuck 这种的 vmp  vmp 目前还是比较常见的 国内来说腾讯 小红书 抖音 知乎 都有vmp了 我之前的解决办法 就是在关键节点打日志然后看输出日志分析  经常有几万行的日志看的很蛋疼   所以来研究下怎么用 ast 来还原vmp 代码   注意需要你了解ast常⽤节点的构成和怎么生成对应的ast节点第一步 看vmp代码结构vm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反编译小红书vmp 代码">
+<meta property="og:url" content="http://example.com/2024/05/18/decompile-xhs/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="目前在JS 方面常见的保护方式  代码混淆 类似ob混淆 jsfuck 这种的 vmp  vmp 目前还是比较常见的 国内来说腾讯 小红书 抖音 知乎 都有vmp了 我之前的解决办法 就是在关键节点打日志然后看输出日志分析  经常有几万行的日志看的很蛋疼   所以来研究下怎么用 ast 来还原vmp 代码   注意需要你了解ast常⽤节点的构成和怎么生成对应的ast节点第一步 看vmp代码结构vm">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/1.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_1.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_2.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_3.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_4.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_6.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_7.png">
+<meta property="og:image" content="http://example.com/2024/05/18/decompile-xhs/img_8.png">
+<meta property="article:published_time" content="2024-05-17T16:36:22.000Z">
+<meta property="article:modified_time" content="2024-06-17T09:24:48.822Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/05/18/decompile-xhs/1.png">
+  
+  
+  
+  <title>反编译小红书vmp 代码 - 故意</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>故意</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="反编译小红书vmp 代码"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-18 00:36" pubdate>
+          2024年5月18日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">反编译小红书vmp 代码</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <p>目前在JS 方面常见的保护方式</p>
+<ol>
+<li>代码混淆 类似ob混淆 jsfuck 这种的</li>
+<li>vmp</li>
+</ol>
+<p>vmp 目前还是比较常见的 国内来说<br>腾讯 小红书 抖音 知乎 都有vmp了</p>
+<p>我之前的解决办法 就是在关键节点打日志<br>然后看输出日志分析  经常有几万行的日志<br>看的很蛋疼  </p>
+<p>所以来研究下怎么用 ast 来还原vmp 代码  </p>
+<h1 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h1><h1 id="需要你了解ast常⽤节点的构成和怎么生成对应的ast节点"><a href="#需要你了解ast常⽤节点的构成和怎么生成对应的ast节点" class="headerlink" title="需要你了解ast常⽤节点的构成和怎么生成对应的ast节点"></a>需要你了解ast常⽤节点的构成和怎么生成对应的ast节点</h1><h3 id="第一步-看vmp代码结构"><a href="#第一步-看vmp代码结构" class="headerlink" title="第一步 看vmp代码结构"></a>第一步 看vmp代码结构</h3><p>vmp 代码一般都会在一个循环里 还有个长的数组 代表的要执行哪个指令</p>
+<p><img src="/2024/05/18/decompile-xhs/1.png" srcset="/img/loading.gif" lazyload alt="1.png"><br>这里b 其实就是长数组 代表走的指令了<br>这个d 其实是全局的常量 后面执行的时候会从这里取值<br><img src="/2024/05/18/decompile-xhs/img.png" srcset="/img/loading.gif" lazyload alt="img.png"><br>经过处理后 就变长了11119长度 五列的数组 其中0位置的值就代表了 要走哪条指令</p>
+<p><img src="/2024/05/18/decompile-xhs/img_1.png" srcset="/img/loading.gif" lazyload alt="img_1.png">  </p>
+<p>_ace_aec23 是一个67 长度的list 里面都是函数<br>这里的 指令是4  代表要走 _ace_aec23 中下标4的函数<br>他的执行形式就介绍完了 </p>
+<h3 id="第二步-看看一些关键的变量"><a href="#第二步-看看一些关键的变量" class="headerlink" title="第二步 看看一些关键的变量"></a>第二步 看看一些关键的变量</h3><p><img src="/2024/05/18/decompile-xhs/img_2.png" srcset="/img/loading.gif" lazyload alt="img_2.png"><br>在开始之前定义了一些 list 和object<br>其中 比较有用的是 _ace_dcca5 栈  和 _ace_66 变量池<br>在加上 前面的常量池 就够了 别的值的定义用到时 在分析  </p>
+<h3 id="第三步-开始反编译"><a href="#第三步-开始反编译" class="headerlink" title="第三步 开始反编译"></a>第三步 开始反编译</h3><p>我的理解中 反编译vmp<br>就是让vmp流程中的所有操作都变成对ast 节点的操作<br>演示一下大概就明白了<br>现在开始让函数自己进行执行<br>当前 i &#x3D; 1  opcode &#x3D; [12,6,0,6,1] 就是要执行67个函数中下标为12的函数<br><img src="/2024/05/18/decompile-xhs/img_3.png" srcset="/img/loading.gif" lazyload alt="img_3.png"><br>很明显 这里就是让 a部分 加上b 部分  在进入_ace_1ae3c函数<br><img src="/2024/05/18/decompile-xhs/img_4.png" srcset="/img/loading.gif" lazyload alt="img_4.png"><br>赋值给 ace_dcca5 这个栈 一般都是赋值到下标为0 的地方<br>那么下面来看怎么处理这个节点</p>
+<pre><code class="javascript">            case 12:
+                let v ;
+                let l = getArgs(p0, p1) // 获取到left节点的值
+                let r = getArgs(p2, p3) // 获取right节点的值
+                // 这里的代码是为了优化反编译结果 连续生成一个字符串的地方
+                if (types.isStringLiteral(l) &amp;&amp; types.isStringLiteral(r)) &#123;
+                    // 面对的是 l和 r 都是字符串
+                    v = l.value + r.value;
+                &#125; else if (typeof l === &#39;string&#39; &amp;&amp; types.isStringLiteral(r)) &#123;
+                    // 面对的是 l 是一个变量节点 &amp;&amp; r === 字符串
+                    v = l + r.value
+                &#125; else &#123;
+                    // 其他方法就生成一个 运算符的表达式
+                    v = types.binaryExpression(&#39;+&#39;, l, r)
+                    // body.push(newVaria(v, res))
+                &#125;
+                _ace_dcca5[0] = v;
+</code></pre>
+<p>节点的处理就大同小异的<br>关键是处理 if-else while break continue try-catch-finally  已经 新函数的节点  </p>
+<p>下面来看看 新函数怎么处理  首先找到vmp中处理一个新函数的地方</p>
+<pre><code class="javascript">// 当指令为61的时候 就是新定义一个函数
+function(p0, p1, p2, p3, p4, p5, p6) &#123;
+    // 切分新的指令list
+    var _ace_404c = _ace_75a05.slice(_ace_34d1(p0, p1), _ace_34d1(p2, p3) + 1)
+    // 复制当前的变量池
+  , _ace_71423 = _ace_66;
+    // 他这里是将一个匿名函数赋值到栈里了
+    // 我们的处理就是直接反编译出来这个函数 将函数节点赋值给栈
+    _ace_1ae3c(function() &#123;
+        // 一些准备工作 保持新函数外层一些关键点的值不跑偏
+        _ace_420ea = &#123;
+            _ace_5ee37: this || _ace_4752e,
+            _ace_84c79: _ace_420ea,
+            _ace_b0594: arguments,
+            _ace_eb1d: _ace_71423
+        &#125;;
+        // 进入循环 执行函数内的vmp 代码
+        _ace_99485(_ace_404c);
+        // 将这个_ace_420ea的值还原回去 
+        _ace_420ea = _ace_420ea._ace_84c79;
+        // 如果在结果时栈0 有值 就是函数有返回值
+        print(&#39;res&#39;,_ace_8cba0(_ace_dcca5[0]))
+        return _ace_8cba0(_ace_dcca5[0]);
+    &#125;, _ace_be07c, _ace_be07c, 0);
+    return ++p4;
+&#125;
+</code></pre>
+<p>看反编译代码吧 </p>
+<pre><code class="javascript">case 61:
+    // 函数指令必须从30 开始 处理栈什么的
+    // 以22结束 还原栈
+    // 解析为一个函数
+    let fl = getArgs(p0, p1); // 函数开始位置
+    let fr = getArgs(p2, p3); // 函数结束位置
+
+    let newCode = allcode.slice(fl, fr + 1);// 切分一个新函数指令list出来
+    let newBody = new MyArray(); // 新建一个函数内部的ast代码存放的body
+    let v61 = newVar(true)
+    let old_ace_dcca5 = _ace_dcca5.slice(); // 像他的源码 一样备份一些东西
+    let old_ace_a3718 = _ace_a3718;
+    let old_ace_66 = _ace_66;
+    let new_ace_dcca5 = [0, 0, 0, 0, 0, 0]
+    let new_ace_66 = &#123;&#125;;
+    new_ace_66._ace_66 = _ace_66
+    // 开始执行新函数 newCode 的指令了
+    let func47Res = main(newCode, 0, newCode.length - 1, newBody,new_ace_dcca5 ,
+        new_ace_66, -1,-1,[])
+    try &#123;
+        // 如果函数有返回值 就加个return 语句
+        if (types.isIdentifier(new_ace_dcca5[0]) ) &#123;
+            newBody.push(types.returnStatement(new_ace_dcca5[0]))
+        &#125;
+    &#125; catch (e) &#123;
+        debugger
+    &#125;
+    // 执行完跳出循环后 定义一个新函数
+    body.push(types.functionDeclaration(v61, [], types.blockStatement(newBody.data)));
+    // 函数变量放到栈中
+    _ace_dcca5[0] = v61
+    // 还原之前备份的
+    _ace_dcca5 = old_ace_dcca5.slice();
+    _ace_a3718 = old_ace_a3718;
+    _ace_66 = old_ace_66;
+    break
+</code></pre>
+<p>反编译结果大概就这样<br><img src="/2024/05/18/decompile-xhs/img_6.png" srcset="/img/loading.gif" lazyload alt="img_6.png">  </p>
+<p>整体逻辑就是这样的 去看源码中每个指令位置坐了什么事情 把他转成ast节点 做同样的事情<br>就出来了  </p>
+<h2 id="最终效果"><a href="#最终效果" class="headerlink" title="最终效果"></a>最终效果</h2><p><img src="/2024/05/18/decompile-xhs/img_7.png" srcset="/img/loading.gif" lazyload alt="img_7.png"><br>这个反编译完1880行 而且可以明显的看到 _webmsxyw 这个函数被挂载到了window上了<br>我的理解中 vmp反编译的难点 多数在于循环中 特别是有break和continue的循环 需要非常仔细的去跟它的源码  </p>
+<h3 id="欢迎关注我的公众号-谢谢大家"><a href="#欢迎关注我的公众号-谢谢大家" class="headerlink" title="欢迎关注我的公众号 谢谢大家"></a>欢迎关注我的公众号 谢谢大家</h3><p><img src="/2024/05/18/decompile-xhs/img_8.png" srcset="/img/loading.gif" lazyload alt="img_8.png"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>反编译小红书vmp 代码</div>
+      <div>http://example.com/2024/05/18/decompile-xhs/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>故意</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/05/24/dy-decompile/" title="反编译抖音 a_bogus vmp">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">反编译抖音 a_bogus vmp</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/07/cronet/" title="JA3 TLS 指纹新选择~编译chromium网络库记录">
+                        <span class="hidden-mobile">JA3 TLS 指纹新选择~编译chromium网络库记录</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

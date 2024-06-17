@@ -1,0 +1,651 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="故意">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="perimeterx px3 分析熟悉的环节  😒工作需要搞一下只是 无感目标网站 1aHR0cHM6Ly93d3cuc3Bpcml0LmNvbS8&#x3D;  标志 会有好多这样的请求 基本就是px了 参数加解密会看到 payload 像是base64实际是base64编码后再次加密的结果追踪他的栈 会发现 是在这里生成的代码同时会发现 他的代码中有很多混淆的字符串可以通过 AST 处理一下得到这种容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="perimeterx px3 无感 分析">
+<meta property="og:url" content="http://example.com/2023/11/15/px/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="perimeterx px3 分析熟悉的环节  😒工作需要搞一下只是 无感目标网站 1aHR0cHM6Ly93d3cuc3Bpcml0LmNvbS8&#x3D;  标志 会有好多这样的请求 基本就是px了 参数加解密会看到 payload 像是base64实际是base64编码后再次加密的结果追踪他的栈 会发现 是在这里生成的代码同时会发现 他的代码中有很多混淆的字符串可以通过 AST 处理一下得到这种容">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image0.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image1.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image2.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image-1.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image-2.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image-3.png">
+<meta property="og:image" content="http://example.com/2023/11/15/px/image3.png">
+<meta property="article:published_time" content="2023-11-15T10:59:48.000Z">
+<meta property="article:modified_time" content="2024-06-17T09:24:48.838Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/11/15/px/image0.png">
+  
+  
+  
+  <title>perimeterx px3 无感 分析 - 故意</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>故意</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="perimeterx px3 无感 分析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-11-15 18:59" pubdate>
+          2023年11月15日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          9 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">perimeterx px3 无感 分析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="perimeterx-px3-分析"><a href="#perimeterx-px3-分析" class="headerlink" title="perimeterx px3 分析"></a>perimeterx px3 分析</h1><p>熟悉的环节  😒<br>工作需要搞一下<br>只是 无感<br>目标网站</p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">aHR0cHM6Ly93d3cuc3Bpcml0LmNvbS8</span><span class="hljs-operator">=</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="标志"><a href="#标志" class="headerlink" title="标志"></a>标志</h1><p><img src="/2023/11/15/px/image0.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br><img src="/2023/11/15/px/image1.png" srcset="/img/loading.gif" lazyload alt="Alt text"></p>
+<p>会有好多这样的请求 基本就是px了</p>
+<h2 id="参数加解密"><a href="#参数加解密" class="headerlink" title="参数加解密"></a>参数加解密</h2><p><img src="/2023/11/15/px/image2.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br>会看到 payload 像是base64<br>实际是base64编码后再次加密的结果<br><img src="/2023/11/15/px/image.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br>追踪他的栈 会发现 是在这里生成的代码<br><img src="/2023/11/15/px/image-1.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br><img src="/2023/11/15/px/image-2.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br>同时会发现 他的代码中有很多混淆的字符串<br>可以通过 AST 处理一下<br><img src="/2023/11/15/px/image-3.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br>得到这种容易读懂的代码 在进行分析<br>先来看看 payload 是怎么加密的</p>
+<p><img src="/2023/11/15/px/image3.png" srcset="/img/loading.gif" lazyload alt="Alt text"><br>分析一下 就是 先把json字符串的每个字节 ^ 50 再转base64<br>然后再用uuid 获取一个字符串<br>再把第一步的 base64 分割插入 uuid 的字符串<br>再处理一下 就是结果的payload 了  </p>
+<figure class="highlight arcade"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs arcade">&#123;<br>    <span class="hljs-string">&quot;do&quot;</span>: <span class="hljs-literal">null</span>,<br>    <span class="hljs-string">&quot;ob&quot;</span>: <span class="hljs-string">&quot;B1lZWQcHWQcUNxgQDA0UW1tYFFsMUA1ZXFBRXFkMXQpdXwsJXF0LXlhdC1FdDl4MUVENCl9aUFlaXVpdCg4NX15aX19RXglcXVxQDQwMWlBcUF9SDREiWAk/WQQLWzoACjApAScCLVslLCkQJSwtWCc8PR8lLAxRFBwaHQ0UW1hYFhYWFllZWQdZBxRZUFpfWVlcWlxbWFFaXFheWF5bWBYWFhZZWVkHB1kUCwsUXlgUPVouHDI+JhgMLz1RPC8uXCcfVVUWFhYWB1lZB1lZBwcUXVxeUQ1QDl5FUFxaX0VZWQ0NRQpfXVhFW1gJXVkMCQ5QClBbFBwaHQ0WFhYWB1kHB1kHFAoNDFoLWVFYRVBcWl5FWVkNDUUJUV1YRQoMWF1QXAsNX14JURRbWV1bXlhYWBQcGh0NFhYWFgdZB1lZWRQLHRYWFhZZWQdZWVkUX1haCglbXwoLUQsJCl0NCloNXFgJDlsJC1leXl0OClpeUVwOUV1aCwpZWV8JXA1YXApcXgxYX1AOXF1cWQwKChYWFhYHWVkHWVkUXVxeUQ1dXQ1FUFxaX0VZWQ0NRQpfXVhFW1gJXVkMCQ5QClBbFhYWFllZWQcHWRQaDhReWBRZFhYWFgdZWVkHBwdZFFlfWFhZWFlcUV1YWF4WFhYWB1lZWQcHBwcUWVpRXxYWFhZZBwcHB1kUCwQJBhkcDwRdXRteWlwcGwcOXA8=&quot;</span><br>&#125;<br><span class="hljs-string">``</span><span class="hljs-string">`  </span><br><span class="hljs-string">返回结果这里看到的 ob 也是加密的  </span><br><span class="hljs-string">这个就比较简单了  </span><br><span class="hljs-string">base64 解码后 在 ^ (版本号 % 128)  </span><br><span class="hljs-string">当前版本号是 v8.7.2 就是 (872 % 128)   </span><br></code></pre></td></tr></table></figure>
+<p>[<br> “o1oo1o|957a2621-8427-11ee-bdb4-077351f73529|31536000|true”,<br> “11o111|79bce223313698a7586198b6ab78dc0d56e6f334b3d98ab8d36460a19a6fddda”,<br> “o11o11oo|96206fb1-8427-11ee-a5c7-ea6a94989dfc|true”,<br> “o1o111|cu”,<br> “o111ooo1|1700101605261”,<br> “111oo1|cc|60|U2FtZVNpdGU9TGF4Ow&#x3D;&#x3D;”,<br> “111o1o|15664779070372902995”,<br> “o11o11|96206bfe-8427-11ee-a5c7-ea6a94989dfc”,<br> “1oooo1|clanrpe6tl5m24stojmg”,<br> “o111oooo|292”,<br> “o111oo1o|_pxde|330|0dee1113d487bf7d78682188d959d13981ba17dcd2af8d264f7d5e6b6c9b2475:eyJ0aW1lc3RhbXAiOjE3MDAxMDE2MDUyNjF9|true|300”<br>]</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs gcode">这些值 就是后面参与计算的 一些值了  <br><span class="hljs-number">1</span>ooo<span class="hljs-meta">o1</span> 开头的这个值 代表他不同的计算逻辑   <br>![Alt text]<span class="hljs-comment">(image5.png)</span>  <br>在代码中都可以看到    <br>初始化完成后 就要去校验浏览器环境了   <br></code></pre></td></tr></table></figure>
+<p>{<br>    “t”: “PX11590”,<br>    “d”: {<br>        “PX11431”: “1700101605261”,<br>        “PX12454”: 292,<br>        “PX11701”: “15664779070372902995”,<br>        “PX11529”: 80457564,<br>        “PX11555”: 4294705152,<br>        “PX11833”: 61616059,<br>        “PX11840”: “Thu Nov 16 2023 10:26:45 GMT+0800 (China Standard Time)”,<br>        “PX12573”: “58baea05”,<br>        “PX11804”: “c93b435e78883931c991675c088777e3”,<br>        “PX12118”: “clanrpe6tl5m24stojmg”,<br>        “PX11746”: “71f68cf1450d0b31d397705dad72f593”,<br>        “PX11371”: “c73a8f6757304c8bee54230a32cf34ef”,<br>        “PX12501”: “8f5550519283f7b1591b0ea95f4e98ca”,<br>        “PX12169”: 3,<br>        “PX11902”: 1,<br>        “PX11560”: 12110,<br>        “PX11332”: 1700101626566,<br>        “PX12248”: 3600,<br>        “PX11385”: 1700101604530,<br>        “PX12280”: 1700101627175,<br>        “PX11496”: “03642cf8-0fe5-4c04-b842-1334ee0458f4”,<br>        “PX12330”: “109|66|66|70|80”,<br>        “PX11705”: 1182,<br>        “PX11938”: true,<br>        “PX11602”: true,<br>        “PX12021”: “false”,<br>        “PX12421”: “false”,<br>        “PX12124”: 1,<br>        “PX11609”: 1,<br>        “PX12291”: “”,<br>        “PX11881”: [<br>            “loadTimes”,<br>            “csi”,<br>            “app”<br>        ],<br>        “PX12207”: 0,<br>        “PX11538”: 2,<br>        “PX11984”: “TypeError: Cannot read properties of null (reading ‘0’)\n    at de (<a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:796:13)/n">https://client.px-cloud.net/PXVb73hTEg/main.min.js:796:13)\n</a>    at Eo (<a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:2294:31)/n">https://client.px-cloud.net/PXVb73hTEg/main.min.js:2294:31)\n</a>    at Co (<a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:2316:23)/n">https://client.px-cloud.net/PXVb73hTEg/main.min.js:2316:23)\n</a>    at <a target="_blank" rel="noopener" href="https://client.px-cloud.net/PXVb73hTEg/main.min.js:2152:9">https://client.px-cloud.net/PXVb73hTEg/main.min.js:2152:9</a>“,<br>        “PX11645”: “<a target="_blank" rel="noopener" href="https://www.spirit.com/">https://www.spirit.com/</a>“,<br>        “PX11597”: [],<br>        “PX12023”: “”,<br>        “PX11337”: false,<br>        “PX12544”: true,<br>        “PX12589”: “succeeded”,<br>        “PX11524”: true,<br>        “PX11843”: 1920,<br>        “PX11781”: 1080,<br>        “PX12121”: 1920,<br>        “PX12128”: 1055,<br>        “PX12387”: “1920X1080”,<br>        “PX12003”: 24,<br>        “PX11380”: 24,<br>        “PX11494”: 906,<br>        “PX12411”: 853,<br>        “PX12443”: 0,<br>        “PX12447”: 0,<br>        “PX11533”: true,<br>        “PX12079”: false,<br>        “PX12278”: true,<br>        “PX11694”: false,<br>        “PX12294”: false,<br>        “PX12514”: true,<br>        “PX12515”: “TypeError: Cannot read properties of undefined (reading ‘width’)”,<br>        “PX12516”: “webkit”,<br>        “PX12517”: 33,<br>        “PX12518”: false,<br>        “PX12545”: false,<br>        “PX12593”: false,<br>        “PX12595”: “AudioData.SVGAnimatedAngle.SVGMetadataElement”,<br>        “PX12069”: [<br>            “PDF Viewer”,<br>            “Chrome PDF Viewer”,<br>            “Chromium PDF Viewer”,<br>            “Microsoft Edge PDF Viewer”,<br>            “WebKit built-in PDF”<br>        ],<br>        “PX12286”: 5,<br>        “PX11576”: true,<br>        “PX12318”: true,<br>        “PX11384”: true,<br>        “PX11886”: true,<br>        “PX11583”: “en-US”,<br>        “PX12458”: “MacIntel”,<br>        “PX11681”: [<br>            “en-US”<br>        ],<br>        “PX11754”: “UA”,<br>        “PX12037”: true,<br>        “PX11390”: -480,<br>        “PX11621”: 8,<br>        “PX11657”: 1,<br>        “PX12081”: “Gecko”,<br>        “PX11908”: “20030107”,<br>        “PX12314”: “”,<br>        “PX11829”: true,<br>        “PX11464”: true,<br>        “PX12054”: 2,<br>        “PX11821”: “Netscape”,<br>        “PX11479”: “Mozilla”,<br>        “PX11674”: true,<br>        “PX12241”: 400,<br>        “PX11372”: false,<br>        “PX11683”: 1.5,<br>        “PX11561”: “3g”,<br>        “PX11877”: true,<br>        “PX12100”: true,<br>        “PX12506”: “arm”,<br>        “PX12507”: “64”,<br>        “PX12509”: false,<br>        “PX12510”: “”,<br>        “PX12511”: “macOS”,<br>        “PX12512”: “13.5.0”,<br>        “PX12513”: “117.0.5938.149”,<br>        “PX12548”: true,<br>        “PX12578”: {},<br>        “PX12579”: {<br>            “support”: true,<br>            “status”: {<br>                “effectiveType”: “3g”,<br>                “rtt”: 400,<br>                “downlink”: 1.5,<br>                “saveData”: false<br>            }<br>        },<br>        “PX12508”: [{<br>                “brand”: “Google Chrome”,<br>                “version”: “117”<br>            },<br>            {<br>                “brand”: “Not;A&#x3D;Brand”,<br>                “version”: “8”<br>            },<br>            {<br>                “brand”: “Chromium”,<br>                “version”: “117”<br>            }<br>        ],<br>        “PX12549”: true,<br>        “PX11539”: “sss”,<br>        “PX11528”: “”,<br>        “PX12271”: “sss”,<br>        “PX11849”: “ss”,<br>        “PX12464”: “ss”,<br>        “PX11356”: true,<br>        “PX12426”: true,<br>        “PX11791”: true,<br>        “PX11517”: true,<br>        “PX12520”: true,<br>        “PX12524”: “4YC14YCd4Y6YaI5oCR7r27”,<br>        “PX12527”: “3207084bd110863e23aa78e04”,<br>        “PX12260”: “UA”,<br>        “PX12249”: false,<br>        “PX11897”: “90e65465”,<br>        “PX12597”: 1,<br>        “PX11526”: false,<br>        “PX11684”: false,<br>        “PX11812”: false,<br>        “PX12335”: true,<br>        “PX12080”: 0,<br>        “PX11678”: false,<br>        “PX11349”: “visible”,<br>        “PX12397”: false,<br>        “PX11387”: 0,<br>        “PX12150”: 1920,<br>        “PX12304”: true,<br>        “PX11651”: 970,<br>        “PX11867”: “missing”,<br>        “PX12254”: true,<br>        “PX11540”: true,<br>        “PX11548”: false,<br>        “PX11446”: true,<br>        “PX12550”: 1,<br>        “PX12431”: 0,<br>        “PX11991”: 10,<br>        “PX11837”: 48,<br>        “PX11632”: 0,<br>        “PX11409”: 9,<br>        “PX11508”: “49e5084e”,<br>        “PX11452”: “7c5f9724”,<br>        “PX12218”: “65d826e0”,<br>        “PX12481”: “a9269e00”,<br>        “PX11780”: “50a5ec55”,<br>        “PX12551”: “https:”,<br>        “PX12553”: “Asia&#x2F;Shanghai”,<br>        “PX12567”: “w3c”,<br>        “PX12576”: “screen”,<br>        “PX12554”: “function getOwnPropertyDescriptors() { [native code] }”,<br>        “PX12577”: “function query() { [native code] }”,<br>        “PX12594”: false,<br>        “PX12566”: false,<br>        “PX12571”: “74d9c66”,<br>        “PX12581”: “default”,<br>        “PX11303”: false,<br>        “PX11515”: false,<br>        “PX12133”: false,<br>        “PX12340”: false,<br>        “PX11738”: false,<br>        “PX11723”: false,<br>        “PX11389”: false,<br>        “PX11839”: false,<br>        “PX11460”: false,<br>        “PX12102”: false,<br>        “PX11378”: false,<br>        “PX12317”: false,<br>        “PX12564”: null,<br>        “PX12565”: -1,<br>        “2655744:343041:31::6”: “3744655;252150;20;;7”<br>    }<br>}]</p>
+<figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs sqf">有些值 是根据上个请求的返回值 计算的  <br>![Alt <span class="hljs-built_in">text</span>](image7.png)  <br><br>就是这么去跟  然后发两到 三个请求  <br>![Alt <span class="hljs-built_in">text</span>](image8.png)  <br>看到 <span class="hljs-built_in">score</span> = <span class="hljs-number">0</span> 就是过了   <br>这个socre 不是每个站都有的 并不一定给你这个  <br>看到px2也是基本成功的标志  <br><br></code></pre></td></tr></table></figure>
+<p>&#x2F;&#x2F; 成功的返回值<br>{“errors”:null,”messages”:null,”data”:{“token”:”eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkb3RSZXpXZWIiLCJqdGkiOiIyYjI0NzZiNi03ZDQ2LWRiYmItN2FlNS0xYzFjMjlhMGQ5M2IiLCJpc3MiOiJkb3RSRVogQVBJIn0.teGGMjUuam-dpY_hM7OmpJqr-jC5GrEZKweVkZ-aF7U”,”idleTimeoutInMinutes”:15},”metadata”:null}<br>&#x2F;&#x2F; 没过去的话<br>{“appId”:”PXkp4CLSb5”,”jsClientSrc”:”&#x2F;kp4CLSb5&#x2F;init.js”,”firstPartyEnabled”:true,”vid”:””,”uuid”:”07439816-842d-11ee-9fc1-c57753063f72”,”hostUrl”:”&#x2F;kp4CLSb5&#x2F;xhr”,”blockScript”:”&#x2F;kp4CLSb5&#x2F;captcha&#x2F;kp4CLSb5&#x2F;captcha.js?a&#x3D;c&amp;u&#x3D;07439816-842d-11ee-9fc1-c57753063f72&amp;v&#x3D;&amp;m&#x3D;0”,”altBlockScript”:”<a target="_blank" rel="noopener" href="https://captcha.px-cloud.net/PXkp4CLSb5/captcha.js?a=c&u=07439816-842d-11ee-9fc1-c57753063f72&v=&m=0%22,%22customLogo%22:%22https://content.spirit.com/a/1679%22%7D">https://captcha.px-cloud.net/PXkp4CLSb5/captcha.js?a=c&amp;u=07439816-842d-11ee-9fc1-c57753063f72&amp;v=&amp;m=0&quot;,&quot;customLogo&quot;:&quot;https://content.spirit.com/a/1679&quot;}</a><br>&#x2F;&#x2F; 就是按压 验证码了</p>
+<pre><code class="hljs">
+# 结束 
+
+这个网站是 px 和akamai 都有的 所以测试时比较麻烦  
+
+下一步要去捣鼓捣鼓 按压的验证码了  
+希望顺利  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪🤪  
+</code></pre>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>perimeterx px3 无感 分析</div>
+      <div>http://example.com/2023/11/15/px/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>故意</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年11月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/12/14/px-touch/" title="perimeterx px3  按压验证码 分析">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">perimeterx px3  按压验证码 分析</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2023/09/20/shape-bypass/" title="shape-bypass">
+                        <span class="hidden-mobile">shape-bypass</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
