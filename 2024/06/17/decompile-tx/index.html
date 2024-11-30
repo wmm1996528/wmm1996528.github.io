@@ -1,0 +1,646 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="故意">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="反编译腾讯vmp继续学习的过程 多翻译几个vmp 学习看看他们的是怎么编译的 写一个自己的vmp 123456function __TENCENT_CHAOS_VM(U, T, g, D, j, E, K, w) &amp;#123;   &#x2F;&#x2F; U指令起点   &#x2F;&#x2F; T是指令list   &#x2F;&#x2F; g是函数this 或window对象   &#x2F;&#x2F; D是内部变量和栈&amp;#125; 12345678910111213">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反编译腾讯vmp">
+<meta property="og:url" content="http://example.com/2024/06/17/decompile-tx/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="反编译腾讯vmp继续学习的过程 多翻译几个vmp 学习看看他们的是怎么编译的 写一个自己的vmp 123456function __TENCENT_CHAOS_VM(U, T, g, D, j, E, K, w) &amp;#123;   &#x2F;&#x2F; U指令起点   &#x2F;&#x2F; T是指令list   &#x2F;&#x2F; g是函数this 或window对象   &#x2F;&#x2F; D是内部变量和栈&amp;#125; 12345678910111213">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/0.png">
+<meta property="og:image" content="http://example.com/2024/06/17/decompile-tx/code2.png">
+<meta property="og:image" content="http://example.com/2024/06/17/decompile-tx/code.png">
+<meta property="og:image" content="http://example.com/2024/06/17/decompile-tx/code3.png">
+<meta property="og:image" content="http://example.com/source/_posts/1.png">
+<meta property="og:image" content="http://example.com/2024/06/17/decompile-tx/img_2.png">
+<meta property="og:image" content="http://example.com/2024/06/17/decompile-tx/img_8.png">
+<meta property="article:published_time" content="2024-06-17T08:26:17.000Z">
+<meta property="article:modified_time" content="2024-11-30T09:41:17.231Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/0.png">
+  
+  
+  
+  <title>反编译腾讯vmp - 故意</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>故意</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="反编译腾讯vmp"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-17 16:26" pubdate>
+          2024年6月17日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          918 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          8 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">反编译腾讯vmp</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="反编译腾讯vmp"><a href="#反编译腾讯vmp" class="headerlink" title="反编译腾讯vmp"></a>反编译腾讯vmp</h1><p>继续学习的过程 多翻译几个vmp 学习<br>看看他们的是怎么编译的 写一个自己的vmp</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">function</span> <span class="hljs-title function_">__TENCENT_CHAOS_VM</span>(<span class="hljs-params">U, T, g, D, j, E, K, w</span>) &#123;<br>   <span class="hljs-comment">// U指令起点</span><br>   <span class="hljs-comment">// T是指令list</span><br>   <span class="hljs-comment">// g是函数this 或window对象</span><br>   <span class="hljs-comment">// D是内部变量和栈</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">for</span> (<span class="hljs-number">0</span>; ;)<br>            <span class="hljs-keyword">try</span> &#123;<br>                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> B = !<span class="hljs-number">1</span>; !B;) &#123;<br>                    <span class="hljs-keyword">let</span> now = U;<br>                    <span class="hljs-keyword">if</span> (now === -<span class="hljs-number">1</span>) &#123;<br>                        <span class="hljs-keyword">break</span><br>                    &#125;<br>                    <span class="hljs-keyword">let</span> op = T[U++];<br>                    <span class="hljs-comment">// Q是一个大的函数数组 可以转为switch case 结构方便执行</span><br>                    B = <span class="hljs-title function_">Q</span>(op, start);<br>                &#125;<br>                <span class="hljs-comment">// 获取返回值的地方</span><br>                <span class="hljs-keyword">var</span> res = l ? (D.<span class="hljs-title function_">pop</span>(), D.<span class="hljs-title function_">slice</span>(<span class="hljs-number">3</span> + __TENCENT_CHAOS_VM.<span class="hljs-property">v</span>)) : D.<span class="hljs-title function_">pop</span>();<br>                <span class="hljs-keyword">return</span> res<br>            &#125; <span class="hljs-keyword">catch</span> (c) &#123;<br>                <span class="hljs-number">0</span>;<br>                <span class="hljs-keyword">var</span> Y = O.<span class="hljs-title function_">pop</span>();<br>                <span class="hljs-keyword">if</span> (Y === <span class="hljs-literal">undefined</span>)<br>                    <span class="hljs-keyword">throw</span> c;<br>                W = c,<br>                    U = Y[<span class="hljs-number">0</span>],<br>                    D.<span class="hljs-property">length</span> = Y[<span class="hljs-number">1</span>],<br>                Y[<span class="hljs-number">2</span>] &amp;&amp; (D[Y[<span class="hljs-number">2</span>]][<span class="hljs-number">0</span>] = W)<br>            &#125;<br></code></pre></td></tr></table></figure>
+<h4 id="Q"><a href="#Q" class="headerlink" title="Q"></a>Q</h4><p><img src="/0.png" srcset="/img/loading.gif" lazyload alt="0.png">  </p>
+<p>在这里可以看到Q函数的结构<br>最开始的地方给switch 加个default 用来处理未知的指令<br>从最第一个指令开始</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-comment">// 54,3,10,2,41,1518,57,54,6,10,2,10,3,10,4,10,5,41,239,54,54,7,10,2,10,3,10,4,65,5,2,3,47,37,25,40,43,41,64,65,43,65,5,2,3,47,22,57,101,57,120,57,112,57,111,57,114,57,116,57,115,38,37,5,65,4,65,5,2,3,47,22,57,79,57,98,57,106,57,101,57,99,57,116,63,36,0,7,22,57,105,17,2,3,39,43,43,7,22,57</span><br><span class="hljs-keyword">case</span> <span class="hljs-number">54</span>:<br>    <span class="hljs-comment">// 扩充栈长度</span><br>    D.<span class="hljs-property">length</span> = T[U++];<br>    <span class="hljs-keyword">break</span>;<br><span class="hljs-keyword">case</span> <span class="hljs-number">10</span>:<br>    <span class="hljs-comment">// 初始化变量固定位置</span><br>    <span class="hljs-keyword">var</span> l = T[U++];<br>    D[l] = D[l] === <span class="hljs-literal">undefined</span> ? [] : D[l];<br>    <span class="hljs-keyword">break</span>;<br><span class="hljs-keyword">case</span> <span class="hljs-number">41</span>:<br>    <span class="hljs-comment">// 直接跳转 这个在ifelse 和while循环中 都要加处理</span><br>    U = T[U++];<br></code></pre></td></tr></table></figure>
+
+<p>下一个地方是vmp的函数反编译了 拿出来说</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">case</span> <span class="hljs-number">31</span>:<br>    <span class="hljs-comment">// 构造一个函数部分</span><br>    <span class="hljs-comment">// 第一个for 是处理函数要用到的其他地方定义的变量</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> W = T[U++], A = [], l = T[U++], O = T[U++], Q = [], B = <span class="hljs-number">0</span>; B &lt; l; B++) A[T[U++]] = D[T[U++]];<br>    <span class="hljs-comment">// 第二个for是参数入参长度和位置</span><br>    <span class="hljs-keyword">for</span> (B = <span class="hljs-number">0</span>; B &lt; O; B++) Q[B] = T[U++];<br>    D.<span class="hljs-title function_">push</span>(<span class="hljs-keyword">function</span> <span class="hljs-title function_">C</span>(<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-comment">// 这里是实际函数vmp执行的地方</span><br>        <span class="hljs-keyword">var</span> l = A.<span class="hljs-title function_">slice</span>(<span class="hljs-number">0</span>);<br>        l[<span class="hljs-number">0</span>] = [<span class="hljs-variable language_">this</span>], l[<span class="hljs-number">1</span>] = [<span class="hljs-variable language_">arguments</span>], l[<span class="hljs-number">2</span>] = [C];<br>        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> O = <span class="hljs-number">0</span>; O &lt; Q.<span class="hljs-property">length</span> &amp;&amp; O &lt; <span class="hljs-variable language_">arguments</span>.<span class="hljs-property">length</span>; O++) <span class="hljs-number">0</span> &lt; Q[O] &amp;&amp; (l[Q[O]] = [<span class="hljs-variable language_">arguments</span>[O]]);<br>        <span class="hljs-keyword">return</span> <span class="hljs-title function_">__TENCENT_CHAOS_VM</span>(W, T, g, l, j, E, K, w);<br>    &#125;);<br></code></pre></td></tr></table></figure>
+<p>照着这么处理 先跳过函数反编译的地方 大概可以得到一个 这样的代码<br><img src="/2024/06/17/decompile-tx/code2.png" srcset="/img/loading.gif" lazyload alt="code2.png"></p>
+<p>然后继续看函数的反编译<br>反编译代码<br><img src="/2024/06/17/decompile-tx/code.png" srcset="/img/loading.gif" lazyload alt="code.png"><br>然后看节点22的处理<br>这里的代码是为了优化反编译结果 连续生成一个字符串的地方<br><img src="/2024/06/17/decompile-tx/code3.png" srcset="/img/loading.gif" lazyload alt="code3.png"><br>其他的就不一一介绍了 按部就班就可以了  </p>
+<h3 id="再需要注意的就是处理-if-else-while-break-continue-try-catch-finally"><a href="#再需要注意的就是处理-if-else-while-break-continue-try-catch-finally" class="headerlink" title="再需要注意的就是处理 if-else while break continue try-catch-finally"></a>再需要注意的就是处理 if-else while break continue try-catch-finally</h3><p>先看看ifelse 和while</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">var</span> l = T[U++];<br>D[D.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>] &amp;&amp; (U = l);<br></code></pre></td></tr></table></figure>
+<p>这个部分的话 需要看后续跳转到哪里<br>比如D[D.length-1] &#x3D; true<br>会跳到l 那么 l开始就是if 部分<br>继续走U+1 就是else 部分<br>然后看后面会不会在跳到当前U的上边 这个流程就可能是while的更新部分<br>循环这里大概就是这样去处理了</p>
+<h3 id="try-catch"><a href="#try-catch" class="headerlink" title="try catch"></a>try catch</h3><p>这里基本就是你在代码里搜一下 有没有 try<br>有的话 这个vmp就有这个处理逻辑了  </p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">case</span> <span class="hljs-number">58</span> <br><span class="hljs-comment">// 这里对应后面的Y 代表出现了异常后该怎么走</span><br>    O.<span class="hljs-title function_">push</span>([T[U++], D.<span class="hljs-property">length</span>, T[U++]]);<br><span class="hljs-keyword">catch</span> (c) &#123;<br>    <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">var</span> Y = O.<span class="hljs-title function_">pop</span>();<br>    <span class="hljs-keyword">if</span> (Y === <span class="hljs-literal">undefined</span>) <span class="hljs-keyword">throw</span> c;<br>    W = c, U = Y[<span class="hljs-number">0</span>], D.<span class="hljs-property">length</span> = Y[<span class="hljs-number">1</span>], Y[<span class="hljs-number">2</span>] &amp;&amp; (D[Y[<span class="hljs-number">2</span>]][<span class="hljs-number">0</span>] = W);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p><img src="/source/_posts/1.png" srcset="/img/loading.gif" lazyload alt="1.png"><br>基本就是这样处理了  </p>
+<h3 id="看看结果"><a href="#看看结果" class="headerlink" title="看看结果"></a>看看结果</h3><p><img src="/2024/06/17/decompile-tx/img_2.png" srcset="/img/loading.gif" lazyload alt="img_2.png"></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这个的反编译过程就是这样了<br>我认为的难点就是变量和作用域跨函数的处理<br>还有循环的判断 否则会死循环一直走某些指令<br>下一步 想自己实现一个vmp 希望可以顺利一些吧 </p>
+<h1 id="欢迎关注我的公众号-谢谢大家"><a href="#欢迎关注我的公众号-谢谢大家" class="headerlink" title="欢迎关注我的公众号 谢谢大家"></a>欢迎关注我的公众号 谢谢大家</h1><p><img src="/2024/06/17/decompile-tx/img_8.png" srcset="/img/loading.gif" lazyload alt="img_8.png"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>反编译腾讯vmp</div>
+      <div>http://example.com/2024/06/17/decompile-tx/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>故意</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年6月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/07/07/decompile-ksada/" title="反编译kasada">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">反编译kasada</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/24/dy-decompile/" title="反编译抖音 a_bogus vmp">
+                        <span class="hidden-mobile">反编译抖音 a_bogus vmp</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

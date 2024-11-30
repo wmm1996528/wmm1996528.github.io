@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="故意">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言工作中遇到了有这个的网站 所以来搞一下目标网址   1aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8&#x3D;  分析请求先看看整体的流程 拿到最后的 cf_clearance cookie 就是验证通过了  第一步 初始化页面页面内容 需要获取 _cf_chl_opt 这个中的部分值和 md 在最后一步post 请求中会用到md_cf_chl_opt.cRay  拼接">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cloudflare">
+<meta property="og:url" content="http://example.com/2023/07/06/cloudflare/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="前言工作中遇到了有这个的网站 所以来搞一下目标网址   1aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8&#x3D;  分析请求先看看整体的流程 拿到最后的 cf_clearance cookie 就是验证通过了  第一步 初始化页面页面内容 需要获取 _cf_chl_opt 这个中的部分值和 md 在最后一步post 请求中会用到md_cf_chl_opt.cRay  拼接">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/liucheng.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/html1.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/post.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/normal.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/envstr.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/envjson.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/pic.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/click.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/token.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/postsh.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/cf.png">
+<meta property="og:image" content="http://example.com/2023/07/06/cloudflare/realhtml.png">
+<meta property="article:published_time" content="2023-07-06T03:59:49.000Z">
+<meta property="article:modified_time" content="2024-11-30T09:41:17.211Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2023/07/06/cloudflare/liucheng.png">
+  
+  
+  
+  <title>cloudflare - 故意</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>故意</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="cloudflare"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-07-06 11:59" pubdate>
+          2023年7月6日 中午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">cloudflare</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>工作中遇到了有这个的网站 所以来搞一下<br>目标网址  </p>
+<figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs abnf"><span class="hljs-attribute">aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8</span><span class="hljs-operator">=</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="分析请求"><a href="#分析请求" class="headerlink" title="分析请求"></a>分析请求</h1><p>先看看整体的流程</p>
+<p><img src="/2023/07/06/cloudflare/liucheng.png" srcset="/img/loading.gif" lazyload><br>拿到最后的 cf_clearance cookie 就是验证通过了 </p>
+<h3 id="第一步-初始化页面"><a href="#第一步-初始化页面" class="headerlink" title="第一步 初始化页面"></a>第一步 初始化页面</h3><p><img src="/2023/07/06/cloudflare/html1.png" srcset="/img/loading.gif" lazyload><br>页面内容 需要获取 _cf_chl_opt 这个中的部分值<br>和 md 在最后一步post 请求中会用到md<br>_cf_chl_opt.cRay  拼接 要请求的JS 地址</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">self._js_1_url = <span class="hljs-string">f&#x27;***/cdn-cgi/challenge-platform/h/<span class="hljs-subst">&#123;cFPWv&#125;</span>/orchestrate/managed/v1?ray=<span class="hljs-subst">&#123;cRay&#125;</span>&#x27;</span><br></code></pre></td></tr></table></figure>
+
+<p>大部分都是这个格式</p>
+<h3 id="第二步"><a href="#第二步" class="headerlink" title="第二步"></a>第二步</h3><p>第一步的 JS 会发生一个  post 请求<br>地址为</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;platform/h/g/flow/ov1/733297980:1688606447:HQv3MvVys5gnB9nrg2GMxuQz8eKvxSMvzd6FTHs5B0E/7e245d2bee981840/5efdbf7ebbe3f50&#x27;</span><br><span class="hljs-string">f&#x27;https://***/cdn-cgi/challenge-platform/h/g/flow/ov1/<span class="hljs-subst">&#123;js中的某个值&#125;</span>/cRay/<span class="hljs-subst">&#123;cHash&#125;</span>&#x27;</span><br></code></pre></td></tr></table></figure>
+<p>发送数据为 </p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>	<span class="hljs-attr">&quot;chReq&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;managed&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;cNounce&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;40056&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;cvId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chC&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chCAS&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;oV&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;cRq&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>		<span class="hljs-attr">&quot;ru&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;aHR0cHM6Ly93d3cuYWxsZWdpYW50YWlyLmNvbS8=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;ra&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNC4wLjAuMCBTYWZhcmkvNTM3LjM2&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;rm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;R0VU&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;d&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;KFSDJOFVmoj82BwR/FXAvmyHO7c0OIEUpTl6E7f8AtMMuXL+tcWhwUaEEI98z3C93JqXNA1QR+jWncGHtDEbC2d2g8m1nXikiEBO3waPXKbD+H1nSP/j6FYAqwl3gt7VP82rQuCrT/jbrLTmmcB/7QqpEVkVjLblzG3ZU91rJlT5Z7t9qS8mkh8TqpRS2589EJnLP52yxugQ8Uypom6B2WevozesJ0HHfqFwKj/n2rGekZMqaztprT09EDkog+C+d+sVTTe1JKfEgMFiLUDh4q2+kNFj2sGdGwnHmDFXFOHSmE0pV4+R115loViUuKy6Is3xk3uHM5r0r74KLXgCLcIiW2thrlFLCSe6EjLKV5hL0KKTygnMEyjvSVbNRriyzL747LwIH1HvpUx2+5BZxrIsZW6ehoBbalCipgy8qtdOTNGD2J9IsLdO0vApORMAoAX3ag8nwYE1XNnwWMPreAaPqLSmV9FG9ScOJcsc3eQW6lE30I515+QGfKodTrrXr2wv9vKcAJ/7bkNkq8aETDdWPFsMDwri0h522yC0dUIBiqU3G0K3rajfotir2yH3BHj9RVQg+Fu9nRyyXfgsbN8PPofxWwVRMqLiclJZszxhIkt/g1g237Sv6O1jmam3&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;t&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;MTY4ODYxMTM3NC44MDAwMDA=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;cT&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1688611374</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;m&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;kw/e2dwgtrWr9v84KaUNpllMVkA+9E5Bs7IfWyHDsWs=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;i1&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;gZG6zyNbCiGlwncYw4DBaA==&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;i2&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;vbHMdj8uMdxJnpRkQs9y4g==&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;zh&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;Y3OoAsWGs8ShmcO7iHaBto+gGoelE8ZB/pf+9RpLrwo=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;uh&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;xR8CtO7r16zI2pMrrz9IVIrV+K1oemYOymcQjo5KlbY=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;hh&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;T0wGGEaOTl1FXca+/ZzlgBao5CR/fBMfjzoqcDV4/cw=&quot;</span><br>	<span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;ie&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>		<span class="hljs-attr">&quot;kd&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;pm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;po&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;ts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;mm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;cl&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;t&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><br>	<span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;wPr&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;if&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;ffs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><br><span class="hljs-punctuation">&#125;</span><br></code></pre></td></tr></table></figure>
+<p>都是第一步提取的<br>加密后 再发出去<br><img src="/2023/07/06/cloudflare/post.png" srcset="/img/loading.gif" lazyload><br>name &#x3D; v_{cRay}<br>因为返回的数据 需要用 cRay 解密<br>每次post 数据格式都这样 就不过多说明了</p>
+<h3 id="第三步-normal"><a href="#第三步-normal" class="headerlink" title="第三步 normal"></a>第三步 normal</h3><p>需要请求一个 后缀为normal 的html 页面</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-string">&#x27;https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/turnstile/if/ov2/av0/rcv0/0/h4gmc/0x4AAAAAAADnPIDROrmt1Wwj/dark/normal&#x27;</span><br><br><span class="hljs-comment"># h4gmc 随机五位字符</span><br><span class="hljs-comment"># 0x4AAAAAAADnPIDROrmt1Wwj 为 网站的key  固定的</span><br></code></pre></td></tr></table></figure>
+<p><img src="/2023/07/06/cloudflare/normal.png" srcset="/img/loading.gif" lazyload><br>还是需要 cray 和 chash 和部分参数<br>在根据 cray 请求第二次的js<br>要加密的数据</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs json"><span class="hljs-punctuation">&#123;</span><br>	<span class="hljs-attr">&quot;chReq&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;chl_api_m&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;cNounce&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;28481&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;cvId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;2&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chC&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chCAS&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;oV&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;cRq&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>		<span class="hljs-attr">&quot;ru&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;aHR0cDovL2NoYWxsZW5nZXMuY2xvdWRmbGFyZS5jb20vY2RuLWNnaS9jaGFsbGVuZ2UtcGxhdGZvcm0vaC9nL3R1cm5zdGlsZS9pZi9vdjIvYXYwL3JjdjAvMC9qaHk2YS8weDRBQUFBQUFBRG5QSURST3JtdDFXd2ovZGFyay9ub3JtYWw=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;ra&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;TW96aWxsYS81LjAgKE1hY2ludG9zaDsgSW50ZWwgTWFjIE9TIFggMTBfMTVfNykgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzExNC4wLjAuMCBTYWZhcmkvNTM3LjM2&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;rm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;R0VU&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;d&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;iTfgNjLhgpaI0mwE+Hoyjm3sRdbCSqUZqoJQPIObCxGSElpFFhNCvf/xyPhECrj4Yo1sdMNMfnviK37oFIKrzN9+C6hHQPds4sGcrMlTGaf4cMmRFh1x9Jt1h3QGas0IVBVgqNDzBVv/s2dE3502O3CiVY2ruKe0fWPfrAl8TT7CtGUnOpK871hMeQKbbSg708DGaeDDiatz4lIgJxxFbVdcOEEAHXBGRF6s29RfMYM9pIb09K2AbaDO9ORxyrbddR7AbbcGgpXUA9Mnfz3bQvLp1P+QL4apvpC+2RPIDMucP5IgJDw4ytAW6cwfv9EHIJsrkZs69aEXuFZLqm/Bq/yEDPNrs9N0nSFERQmUwMsQ8xwkZTg+W/XMO9tK63mdkMEF9sExxw9sN2yFhkkBMOqECC/L8ZValqfKKKRhMfovcexhLi4TxBJ6eMLKF0ZSX5JI2bGOPQS1tKhLnhtYh+c5KiGPU4jA8xrQKLJVAkEJLieOpP3lIpXGXKD3nFqZAl1CgS6r+OawJxK/A88f4s3DpNGQlP4BI4QJ10P/32M=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;t&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;MTY4ODYxMTQ0MC44NzE=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;m&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;VS9+Gsyx7EPMX6/gVYBpyiwfLlVGmC7T38bmHs3RAhU=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;i1&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;9k9pl1+0xD1jrTpl9UA/bw==&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;i2&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;hG8J/PtG3f4yyO74nwUikg==&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;uh&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;xR8CtO7r16zI2pMrrz9IVIrV+K1oemYOymcQjo5KlbY=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;hh&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;WCiLdNo2uN2aXsfJJhG2HFkP3bOo0fw8tsFAppLisvs=&quot;</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;zh&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;9D+zbxCfwBPyr1pF5Wb5E9kRItcGU2xCgzO1zGTKToQ=&quot;</span><br>	<span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;ie&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><br>		<span class="hljs-attr">&quot;kd&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;pm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;po&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;ts&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;mm&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;cl&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><span class="hljs-punctuation">,</span><br>		<span class="hljs-attr">&quot;t&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">0</span><br>	<span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;wPr&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">&#123;</span><span class="hljs-punctuation">&#125;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;if&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;ffs&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">false</span></span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApivId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiWidgetId&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;jhy6a&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiSitekey&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;0x4AAAAAAADnPIDROrmt1Wwj&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiAction&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;managed&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApicData&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;7e247f446c5b3ad6&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiChlPageData&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;3gAFo2l2MbhwV2FqUDdWcmMva2s3NXF1Zk0zVWRRPT2jaXYyuGwzcFdYcGJVSzV5Y3VIWnBWaFEvWXc9PaFk2gEsMVdTTzFCK3pkTG9JMEZ3eXRIVk9qNVFSRWZQOEd4RWRIMkcvMFdjL0c2ekt0WStBNnY0Y0dqczh2d3h5eUdUOHJzT1ltQUVtNjFDQWFQRVJvTGlxYjlpaGVUOHFXS3BBT1JSbkVlMHRxSmlwdjV0M0ZIVmJjcHJkRU5yekllbWpXaDIySjF2dWZoeFJKajVnSWtWNG5HOTBEK0dYNTArbDFZVWY2Ukdic3UwOWNHYW1TUGpTN1N1dEIvYWNlUHVzL0FqMmlxcUhKSzJlY0JJcHBybm92a2ExYXdLbkxwK0VNVy8xZkh0QlhseVA1Z3pNeks2bjliRk9Pd210ODZsZWpqUTIvdVFXRHg2aVdyMGpocjRzQzdjL3YyTFlVSFd5aDZUYnZKYU14d009oW3ZLDlyQjROb0NKOXo4Qmw0YXkzWmNZNUJiMnV0NWJmMlBmOE1OVjZZd2JZT2s9oXS0TVRZNE9EWXhNVFF6Tnk0NU1qZz0=&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiACCH&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;19b997cb&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiUrl&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;初始化地址&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiOrigin&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;初始化地址&quot;</span><span class="hljs-punctuation">,</span><br>	<span class="hljs-attr">&quot;chlApiRcV&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;1/fif1NcEDXIlC2ll&quot;</span><br><span class="hljs-punctuation">&#125;</span><br><span class="hljs-comment">// pageData 是这步js 中的 </span><br><span class="hljs-comment">// chlApicData 是第一步的cray 应该是要做关联的</span><br></code></pre></td></tr></table></figure>
+<p>加密后在发出  会返回 一个长字符串<br><img src="/2023/07/06/cloudflare/envstr.png" srcset="/img/loading.gif" lazyload><br>一般长度会在 十几万到二十几万之间<br>解密后  有两种分支  w.startsWith(‘window._‘)  根据开头字符判断<br>格式一 明文代码分支    这个就简单了<br>格式二 vmp 分支 所有代码会进入vmp 中执行<br>这步就是最难得步骤了 环境校验</p>
+<h3 id="第四步-环境校验"><a href="#第四步-环境校验" class="headerlink" title="第四步 环境校验"></a>第四步 环境校验</h3><p>拿到上面的代码后<br>我是通过补环境的方式过的<br>因为 经过测试 需要校验的环境 点和 顺序是不一样的 导致无法通过还原算法的方式执行<br>也不排除有大神可以直接还原 反正我做不到..<br><img src="/2023/07/06/cloudflare/envjson.png" srcset="/img/loading.gif" lazyload><br>基本上就是 十几个到二十个校验点<br>其中只有第一个是固定的.. 其他都会变化<br><img src="/2023/07/06/cloudflare/pic.png" srcset="/img/loading.gif" lazyload><br>值得注意的一点是 他会请求一张图片<br>获取图片的宽高<br><a target="_blank" rel="noopener" href="https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/img/7e245d3fd8b72bbd/1688609982279/SSIWaTPNMJAQEpP">https://challenges.cloudflare.com/cdn-cgi/challenge-platform/h/g/img/7e245d3fd8b72bbd/1688609982279/SSIWaTPNMJAQEpP</a></p>
+<p>如上 获取完环境数据 在和之前一样 进行加密发送<br>也是有两种分支 </p>
+<ol>
+<li>校验通过 返回的 字符串解密后长度在1000-5000内 可以获得token</li>
+<li>长度为10000以上 是需要进行再次的点击验证<br> <img src="/2023/07/06/cloudflare/click.png" srcset="/img/loading.gif" lazyload><br> 点击验证就是在上面的 十几个环境后再加一个<br> 然后再判断是否通过<br> 解密后字符串长度在1000内就是失败了</li>
+</ol>
+<h3 id="第五步-获取-cf-clearance"><a href="#第五步-获取-cf-clearance" class="headerlink" title="第五步 获取 cf_clearance"></a>第五步 获取 cf_clearance</h3><p>如果环境通过 拿到token 后 需要在发送一次 获取 sh aw 三个参数<br><img src="/2023/07/06/cloudflare/token.png" srcset="/img/loading.gif" lazyload></p>
+<p>再向初始化页面 post 四个参数<br><img src="/2023/07/06/cloudflare/postsh.png" srcset="/img/loading.gif" lazyload><br>就可以拿到<br><img src="/2023/07/06/cloudflare/cf.png" srcset="/img/loading.gif" lazyload><br>和正常的页面代码了<br><img src="/2023/07/06/cloudflare/realhtml.png" srcset="/img/loading.gif" lazyload><br>至此 验证就结束了<br>就可以拿着 cookie 去请求了</p>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><p>目前这个网站测试的是 需要保持 ip tls ua 完全一致<br>破解时使用什么 再次使用时就需要用完全一样的 ip  tls 指纹和 ua</p>
+<p>环境校验时 有一个fetch 请求 和 图片请求 都需要发出<br>图片请求不发 百分百失败</p>
+<p>调试时 需要注意 他对于时间的控制 很严格 页面调试时 动不动就超时 失败…</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/JS%E9%80%86%E5%90%91/" class="category-chain-item">JS逆向</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>cloudflare</div>
+      <div>http://example.com/2023/07/06/cloudflare/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>故意</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年7月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/09/20/shape-bypass/" title="shape-bypass">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">shape-bypass</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

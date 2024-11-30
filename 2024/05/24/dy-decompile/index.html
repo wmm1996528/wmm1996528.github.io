@@ -1,0 +1,638 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="故意">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="接上篇的继续反编译 vmp 来进行学习抖音的不太一样的点在于 他的vmp代码是分散的好几段代码都是vmp的 然后指令对应的操作还不一样 就很蛋疼…而且 指令对应的操作也是if else 还有三元表达式形式的 不太好找位置 第一步 看vmp代码结构12484e4f4a403f524300033604d6dbeab10000045d18187b他通过一系列操作把这个长字符串转成了操作指令集 12345">
+<meta property="og:type" content="article">
+<meta property="og:title" content="反编译抖音 a_bogus vmp">
+<meta property="og:url" content="http://example.com/2024/05/24/dy-decompile/index.html">
+<meta property="og:site_name" content="故意">
+<meta property="og:description" content="接上篇的继续反编译 vmp 来进行学习抖音的不太一样的点在于 他的vmp代码是分散的好几段代码都是vmp的 然后指令对应的操作还不一样 就很蛋疼…而且 指令对应的操作也是if else 还有三元表达式形式的 不太好找位置 第一步 看vmp代码结构12484e4f4a403f524300033604d6dbeab10000045d18187b他通过一系列操作把这个长字符串转成了操作指令集 12345">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/0.png">
+<meta property="og:image" content="http://example.com/2024/05/24/dy-decompile/img_8.png">
+<meta property="article:published_time" content="2024-05-24T02:34:22.000Z">
+<meta property="article:modified_time" content="2024-11-30T09:41:17.251Z">
+<meta property="article:author" content="故意">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/0.png">
+  
+  
+  
+  <title>反编译抖音 a_bogus vmp - 故意</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-01-01T00:00:00.000Z","token":null,"api_server":null},"woyaola":null,"cnzz":null},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>故意</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="反编译抖音 a_bogus vmp"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-05-24 10:34" pubdate>
+          2024年5月24日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">反编译抖音 a_bogus vmp</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h2 id="接上篇的继续反编译-vmp-来进行学习"><a href="#接上篇的继续反编译-vmp-来进行学习" class="headerlink" title="接上篇的继续反编译 vmp 来进行学习"></a>接上篇的继续反编译 vmp 来进行学习</h2><p>抖音的不太一样的点在于 他的vmp代码是分散的<br>好几段代码都是vmp的 然后指令对应的操作还不一样 就很蛋疼…<br>而且 指令对应的操作也是if else 还有三元表达式形式的 不太好找位置</p>
+<h3 id="第一步-看vmp代码结构"><a href="#第一步-看vmp代码结构" class="headerlink" title="第一步 看vmp代码结构"></a>第一步 看vmp代码结构</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs angular2html">484e4f4a403f524300033604d6dbeab10000045d18187b<br>他通过一系列操作把这个长字符串转成了操作指令集<br></code></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><br><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> g = []; ;) <span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-keyword">var</span> m = i[r++];<br>    <span class="hljs-comment">// i 就是上面的长字符串处理后的结果</span><br>    <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">37</span>) <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">18</span>) <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">7</span>) m &lt; <span class="hljs-number">3</span> ? p[++d] = <span class="hljs-number">0</span> === m || <span class="hljs-literal">null</span> : <span class="hljs-number">3</span> === m ? (c = i[r++], p[++d] = c &lt;&lt; <span class="hljs-number">24</span> &gt;&gt; <span class="hljs-number">24</span>) : (c = ((c = ((c = i[r++]) &lt;&lt; <span class="hljs-number">8</span>) + i[r++]) &lt;&lt; <span class="hljs-number">8</span>) + i[r++], p[++d] = (c &lt;&lt; <span class="hljs-number">8</span>) + i[r++]); <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">13</span>) <span class="hljs-number">7</span> === m ? (c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>], r += <span class="hljs-number">2</span>, p[++d] = o[c]) : p[++d] = <span class="hljs-keyword">void</span> <span class="hljs-number">0</span>; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">14</span>) p[++d] = &#123;&#125;; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-number">14</span> === m) c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>], r += <span class="hljs-number">2</span>, s = o[c], u = p[d--], p[d][s] = u; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span> (s = i[r++], u = i[r++], b = v; s &gt; <span class="hljs-number">0</span>; --s) b = b.<span class="hljs-property">p</span>;<br>        p[++d] = b[u]<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">28</span>) <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">20</span>) <span class="hljs-number">18</span> === m ? (c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>], r += <span class="hljs-number">2</span>, s = o[c], p[d] = p[d][s]) : (s = p[d--], p[d] = p[d][s]); <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">22</span>) &#123;<br>        <span class="hljs-keyword">for</span> (s = i[r++], u = i[r++], b = v; s &gt; <span class="hljs-number">0</span>; --s) b = b.<span class="hljs-property">p</span>;<br>        b[u] = p[d--]<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-number">22</span> === m) s = p[d--], u = p[d--], b = p[d--], u[s] = b; <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">for</span> (s = i[r++], u = i[r++], b = v, b = v; s &gt; <span class="hljs-number">0</span>; --s) b = b.<span class="hljs-property">p</span>;<br>        p[++d] = b, p[++d] = u<br>    &#125; <span class="hljs-keyword">else</span> m &lt; <span class="hljs-number">33</span> ? <span class="hljs-number">28</span> === m ? (s = p[d--], p[d] %= s) : p[d] = -p[d] : m &lt; <span class="hljs-number">35</span> ? (s = p[d--], b = (u = p[d--])[s]++, p[++d] = b) : <span class="hljs-number">35</span> === m ? (s = p[d--], p[d] = p[d] == s) : (s = p[d--], p[d] = p[d] != s); <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">58</span>) m &lt; <span class="hljs-number">51</span> ? m &lt; <span class="hljs-number">39</span> ? <span class="hljs-number">37</span> === m ? (s = p[d--], p[d] = p[d] === s) : (s = p[d--], p[d] = p[d] !== s) : m &lt; <span class="hljs-number">44</span> ? (s = p[d--], p[d] = p[d] &lt; s) : <span class="hljs-number">44</span> === m ? (s = p[d--], p[d] = p[d] &gt;&gt; s) : p[d] = !p[d] : m &lt; <span class="hljs-number">53</span> ? <span class="hljs-number">51</span> === m ? (c = (c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>]) &lt;&lt; <span class="hljs-number">16</span> &gt;&gt; <span class="hljs-number">16</span>, r += <span class="hljs-number">2</span>, p[d] ? --d : r += c) : (c = (c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>]) &lt;&lt; <span class="hljs-number">16</span> &gt;&gt; <span class="hljs-number">16</span>, r += <span class="hljs-number">2</span>, p[d] ? r += c : --d) : m &lt; <span class="hljs-number">54</span> ? (s = p[d--], (u = p[d--])[s] = p[d]) : <span class="hljs-number">54</span> === m ? (s = p[d--], p[d] = p[d] <span class="hljs-keyword">in</span> s) : p[d] = <span class="hljs-keyword">void</span> <span class="hljs-number">0</span>; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">68</span>) <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">64</span>) <span class="hljs-number">58</span> === m ? p[d] = <span class="hljs-keyword">typeof</span> p[d] : (c = i[r++], s = p[d--], (u = <span class="hljs-keyword">function</span> <span class="hljs-title function_">e</span>(<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-keyword">var</span> r = e.<span class="hljs-property">_v</span>;<br>        <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>, e.<span class="hljs-property">_u</span>)(r[<span class="hljs-number">0</span>], <span class="hljs-variable language_">arguments</span>, r[<span class="hljs-number">1</span>], r[<span class="hljs-number">2</span>], <span class="hljs-variable language_">this</span>)<br>    &#125;).<span class="hljs-property">_v</span> = [s, c, v], u.<span class="hljs-property">_u</span> = e, p[++d] = u); <span class="hljs-keyword">else</span> &#123;<br>        <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">66</span>) <span class="hljs-keyword">throw</span> s = p[d--];<br>        <span class="hljs-keyword">if</span> (<span class="hljs-number">66</span> === m) &#123;<br>            <span class="hljs-keyword">for</span> (s = p[d--], u = <span class="hljs-literal">null</span>; b = g.<span class="hljs-title function_">pop</span>();) <span class="hljs-keyword">if</span> (<span class="hljs-number">2</span> === b[<span class="hljs-number">0</span>] || <span class="hljs-number">3</span> === b[<span class="hljs-number">0</span>]) &#123;<br>                u = b;<br>                <span class="hljs-keyword">break</span><br>            &#125;<br>            <span class="hljs-keyword">if</span> (u) r = u[<span class="hljs-number">2</span>], u[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span>, g.<span class="hljs-title function_">push</span>(u); <span class="hljs-keyword">else</span> &#123;<br>                <span class="hljs-keyword">if</span> (!h) <span class="hljs-keyword">return</span> s;<br>                r = h[<span class="hljs-number">1</span>], f = h[<span class="hljs-number">2</span>], v = h[<span class="hljs-number">3</span>], g = h[<span class="hljs-number">4</span>], p[++d] = s, h = h[<span class="hljs-number">0</span>]<br>            &#125;<br>        &#125; <span class="hljs-keyword">else</span> d -= c = i[r++], u = p.<span class="hljs-title function_">slice</span>(d + <span class="hljs-number">1</span>, d + c + <span class="hljs-number">1</span>), s = p[d--], b = p[d--], s.<span class="hljs-property">_u</span> === e ? (s = s.<span class="hljs-property">_v</span>, h = [h, r, f, v, g], r = s[<span class="hljs-number">0</span>], <span class="hljs-literal">null</span> == b &amp;&amp; (b = <span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span><br>        &#125;()), f = b, (v = [u].<span class="hljs-title function_">concat</span>(u)).<span class="hljs-property">length</span> = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">min</span>(s[<span class="hljs-number">1</span>], c) + <span class="hljs-number">1</span>, v.<span class="hljs-property">p</span> = s[<span class="hljs-number">2</span>], g = []) : (l = s.<span class="hljs-title function_">apply</span>(b, u), p[++d] = l)<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (m &lt; <span class="hljs-number">71</span>) <span class="hljs-keyword">if</span> (<span class="hljs-number">68</span> === m) &#123;<br>        <span class="hljs-keyword">for</span> (c = i[r++], b = [<span class="hljs-keyword">void</span> <span class="hljs-number">0</span>], l = c; l &gt; <span class="hljs-number">0</span>; --l) b[l] = p[d--];<br>        u = p[d--], l = <span class="hljs-keyword">new</span> (s = <span class="hljs-title class_">Function</span>.<span class="hljs-property">bind</span>.<span class="hljs-title function_">apply</span>(u, b)), p[++d] = l<br>    &#125; <span class="hljs-keyword">else</span> r += <span class="hljs-number">2</span> + (c = (c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>]) &lt;&lt; <span class="hljs-number">16</span> &gt;&gt; <span class="hljs-number">16</span>); <span class="hljs-keyword">else</span> m &lt; <span class="hljs-number">73</span> ? (c = (c = (i[r] &lt;&lt; <span class="hljs-number">8</span>) + i[r + <span class="hljs-number">1</span>]) &lt;&lt; <span class="hljs-number">16</span> &gt;&gt; <span class="hljs-number">16</span>, r += <span class="hljs-number">2</span>, (s = p[d--]) || (r += c)) : <span class="hljs-number">73</span> === m ? --d : (s = p[d], p[++d] = s)<br>&#125; <span class="hljs-keyword">catch</span> (e) &#123;<br>    <span class="hljs-keyword">for</span> (; (c = g.<span class="hljs-title function_">pop</span>()) &amp;&amp; !c[<span class="hljs-number">0</span>];) ;<br>    <span class="hljs-keyword">if</span> (!c) &#123;<br>        <span class="hljs-attr">e</span>:<span class="hljs-keyword">for</span> (; h;) &#123;<br>            <span class="hljs-keyword">for</span> (s = h[<span class="hljs-number">4</span>]; c = s.<span class="hljs-title function_">pop</span>();) <span class="hljs-keyword">if</span> (c[<span class="hljs-number">0</span>]) <span class="hljs-keyword">break</span> e;<br>            h = h[<span class="hljs-number">0</span>]<br>        &#125;<br>        <span class="hljs-keyword">if</span> (!h) <span class="hljs-keyword">throw</span> e;<br>        r = h[<span class="hljs-number">1</span>], f = h[<span class="hljs-number">2</span>], v = h[<span class="hljs-number">3</span>], g = h[<span class="hljs-number">4</span>], h = h[<span class="hljs-number">0</span>]<br>    &#125;<br>    <span class="hljs-number">1</span> === (s = c[<span class="hljs-number">0</span>]) ? (r = c[<span class="hljs-number">2</span>], c[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span>, g.<span class="hljs-title function_">push</span>(c), p[++d] = e) : <span class="hljs-number">2</span> === s ? (r = c[<span class="hljs-number">2</span>], c[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span>, g.<span class="hljs-title function_">push</span>(c)) : (r = c[<span class="hljs-number">3</span>], c[<span class="hljs-number">0</span>] = <span class="hljs-number">2</span>, g.<span class="hljs-title function_">push</span>(c), p[++d] = e)<br></code></pre></td></tr></table></figure>
+
+<p>首先要简化 他那一大堆 if else  变成 switch case  方便后续的操作<br><img src="/0.png" srcset="/img/loading.gif" lazyload alt="0.png"><br>变成这样就好了 方便后续的操作 </p>
+<h2 id="第二步-看一些关键的变量"><a href="#第二步-看一些关键的变量" class="headerlink" title="第二步 看一些关键的变量"></a>第二步 看一些关键的变量</h2><p>解释都在代码里了</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">var</span> c, s, u, b, l, d = -<span class="hljs-number">1</span>, p = [], h = <span class="hljs-literal">null</span>, v = [t];<br><span class="hljs-comment">// 这些变量分别代表了不同的含义 比如 栈 函数变量 函数入参 寄存器 等</span><br><span class="hljs-comment">// 需要注意反编译过程中的 变量作用域问题</span><br><span class="hljs-keyword">for</span> (s = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">min</span>(t.<span class="hljs-property">length</span>, n), u = <span class="hljs-number">0</span>; u &lt; s; ++u) v.<span class="hljs-title function_">push</span>(t[u]);<br>v.<span class="hljs-property">p</span> = a;<br><span class="hljs-string">``</span><span class="hljs-string">`  </span><br><span class="hljs-string">## 第三步 开始反编译</span><br><span class="hljs-string">#### 反编译函数</span><br><span class="hljs-string">这是源代码中定义函数的地方</span><br><span class="hljs-string">`</span><span class="hljs-string">``</span>javascript<br>    i = r[f++];<span class="hljs-comment">// i 是函数入参数量</span><br>    l = o[p--];<span class="hljs-comment">// l是函数起点指令下标</span><br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;newFunc&#x27;</span>,now,l,i);<br>    (n = <span class="hljs-keyword">function</span> <span class="hljs-title function_">e</span>(<span class="hljs-params"></span>) &#123;<br>        <span class="hljs-keyword">var</span> f = e.<span class="hljs-property">_v</span>;<br>        <span class="hljs-keyword">return</span> (<span class="hljs-number">0</span>, e.<span class="hljs-property">_u</span>)(f[<span class="hljs-number">0</span>], <span class="hljs-variable language_">arguments</span>, f[<span class="hljs-number">1</span>], f[<span class="hljs-number">2</span>], <span class="hljs-variable language_">this</span>);<br>    &#125;).<span class="hljs-property">_v</span> = [l, i, h];<br>    n.<span class="hljs-property">_u</span> = e;<br>    o[++p] = n;<br>    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(p)<br></code></pre></td></tr></table></figure>
+<p>反编译成这样</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs javascript">i = r[f++];<br>l = o[p--];<br><span class="hljs-keyword">let</span> body63 = [];<br><span class="hljs-comment">// (n = function e() &#123;</span><br><span class="hljs-comment">//     var f = e._v;</span><br><span class="hljs-comment">//     return (0, e._u)(f[0], arguments, f[1], f[2], this);</span><br><span class="hljs-comment">// &#125;)._v = [l, i, h];</span><br><span class="hljs-comment">// if (now === 1192)debugger</span><br><span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&#x27;newFunc&#x27;</span>, l , i, h.<span class="hljs-property">idx</span>, p+<span class="hljs-number">1</span>) <br><span class="hljs-keyword">let</span> func63 = types.<span class="hljs-title function_">identifier</span>(<span class="hljs-string">&#x27;func&#x27;</span> + +l)<br><span class="hljs-comment">// if (s == 1582)&#123;</span><br><span class="hljs-keyword">let</span> hCopy = h.<span class="hljs-title function_">slice</span>();<br><span class="hljs-keyword">let</span> args = types.<span class="hljs-title function_">identifier</span>(<span class="hljs-string">&#x27;arguments&#x27;</span>);<br>args.<span class="hljs-property">idx</span> = h.<span class="hljs-property">idx</span>+<span class="hljs-number">1</span><br><span class="hljs-title function_">e</span>(l, args, i, h, <span class="hljs-variable language_">this</span>,body63, -<span class="hljs-number">1</span>) <span class="hljs-comment">// 自己处理了一些东西</span><br><span class="hljs-comment">// h = hCopy.slice();</span><br><span class="hljs-keyword">let</span> v61 = types.<span class="hljs-title function_">functionDeclaration</span>(func63, [], types.<span class="hljs-title function_">blockStatement</span>(body63))<br>body.<span class="hljs-title function_">push</span>(v61)<br><span class="hljs-comment">// func63._u = e;</span><br>func63.<span class="hljs-property">_v</span> = [l, i, h];<br>o[++p] = func63;<br></code></pre></td></tr></table></figure>
+
+<h4 id="反编译判断"><a href="#反编译判断" class="headerlink" title="反编译判断"></a>反编译判断</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs javascript"> i = (i = (r[f] &lt;&lt; <span class="hljs-number">8</span>) + r[f + <span class="hljs-number">1</span>]) &lt;&lt; <span class="hljs-number">16</span> &gt;&gt; <span class="hljs-number">16</span>;<br>f += <span class="hljs-number">2</span>;<br><span class="hljs-keyword">if</span> (o[p]) &#123;<br>    f += i; <span class="hljs-comment">// 跳过一部分指令</span><br>&#125; <span class="hljs-keyword">else</span> &#123;<br>    --p;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs javascript">i = (i = (r[f] &lt;&lt; <span class="hljs-number">8</span>) + r[f + <span class="hljs-number">1</span>]) &lt;&lt; <span class="hljs-number">16</span> &gt;&gt; <span class="hljs-number">16</span>;<br>f += <span class="hljs-number">2</span>;<br><span class="hljs-keyword">let</span> body52 = [];<br><span class="hljs-comment">// 这种不是函数的反编译 需要处理好作用域问题 否则会报错</span><br><span class="hljs-title function_">e</span>(f, h, c, b, a,body52, i-<span class="hljs-number">2</span>-<span class="hljs-number">1</span>, <span class="hljs-literal">false</span>, o,p) <br>body.<span class="hljs-title function_">push</span>(types.<span class="hljs-title function_">ifStatement</span>(o[p], types.<span class="hljs-title function_">blockStatement</span>(body52)))<br></code></pre></td></tr></table></figure>
+
+<h2 id="最终结果"><a href="#最终结果" class="headerlink" title="最终结果"></a>最终结果</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><code class="hljs javascript"><span class="hljs-keyword">var</span> tmp2248 = &#123;&#125;;<br>    <span class="hljs-keyword">var</span> tmp2249 = X[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, []);<br>    <span class="hljs-keyword">var</span> tmp2250 = func618[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2248, tmp2249]);<br>    <span class="hljs-keyword">var</span> tmp2251 = &#123;&#125;;<br>    <span class="hljs-keyword">var</span> tmp2252 = &#123;&#125;;<br>    <span class="hljs-keyword">var</span> tmp2253 = navigator[<span class="hljs-string">&quot;platform&quot;</span>];<br>    tmp2252[<span class="hljs-string">&quot;platform&quot;</span>] = tmp2253;<br>    <span class="hljs-keyword">var</span> tmp2254 = func618[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2250, tmp2251, tmp2252]);<br>    tmp2018 = tmp2254;<br>    <span class="hljs-keyword">var</span> tmp2255 = func1198[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2254]);<br>    tmp2019 = tmp2255;<br>    <span class="hljs-keyword">var</span> tmp2256 = func1086[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2255]);<br>    tmp2020 = tmp2256;<br>    <span class="hljs-keyword">var</span> tmp2257 = tmp2256[<span class="hljs-string">&quot;length&quot;</span>];<br>    tmp2021 = tmp2257;<br>    <span class="hljs-keyword">var</span> tmp2258 = <span class="hljs-number">255</span>;<br>    <span class="hljs-keyword">var</span> tmp2259 = tmp2257 &amp; tmp2258;<br>    tmp2023 = tmp2259;<br>    <span class="hljs-keyword">var</span> tmp2260 = <span class="hljs-number">8</span>;<br>    <span class="hljs-keyword">var</span> tmp2261 = tmp2257 &gt;&gt; tmp2260;<br>    <span class="hljs-keyword">var</span> tmp2262 = <span class="hljs-number">255</span>;<br>    <span class="hljs-keyword">var</span> tmp2263 = tmp2261 &amp; tmp2262;<br>    tmp2027 = tmp2263;<br>    <span class="hljs-keyword">var</span> tmp2264 = <span class="hljs-string">&quot;&quot;</span>;<br>    tmp2028 = tmp2264;<br>    <span class="hljs-keyword">var</span> tmp2265 = func1086[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2264]);<br>    tmp2029 = tmp2265;<br>    <span class="hljs-keyword">var</span> tmp2266 = tmp2265[<span class="hljs-string">&quot;length&quot;</span>];<br>    tmp2030 = tmp2266;<br>    <span class="hljs-keyword">var</span> tmp2267 = <span class="hljs-number">255</span>;<br>    <span class="hljs-keyword">var</span> tmp2268 = tmp2266 &amp; tmp2267;<br>    tmp2032 = tmp2268;<br>    <span class="hljs-keyword">var</span> tmp2269 = <span class="hljs-number">8</span>;<br>    <span class="hljs-keyword">var</span> tmp2270 = tmp2266 &gt;&gt; tmp2269;<br>    <span class="hljs-keyword">var</span> tmp2271 = <span class="hljs-number">255</span>;<br>    <span class="hljs-keyword">var</span> tmp2272 = tmp2270 &amp; tmp2271;<br>    tmp2036 = tmp2272;<br>    <span class="hljs-keyword">var</span> tmp2273 = tmp2100 ^ tmp2112;<br>    <span class="hljs-keyword">var</span> tmp2274 = tmp2273 ^ tmp2139;<br>    <span class="hljs-keyword">var</span> tmp2275 = tmp2274 ^ tmp2152;<br>    <span class="hljs-keyword">var</span> tmp2276 = tmp2275 ^ tmp2168;<br>    <span class="hljs-keyword">var</span> tmp2277 = tmp2276 ^ tmp2180;<br>    <span class="hljs-keyword">var</span> tmp2278 = tmp2277 ^ tmp2184;<br>    <span class="hljs-keyword">var</span> tmp2279 = tmp2278 ^ tmp2188;<br>    <span class="hljs-keyword">var</span> tmp2280 = tmp2279 ^ tmp2116;<br>    <span class="hljs-keyword">var</span> tmp2281 = tmp2280 ^ tmp2143;<br>    <span class="hljs-keyword">var</span> tmp2282 = tmp2281 ^ tmp2156;<br>    <span class="hljs-keyword">var</span> tmp2283 = tmp2282 ^ tmp2172;<br>    <span class="hljs-keyword">var</span> tmp2284 = tmp2283 ^ tmp2182;<br>    <span class="hljs-keyword">var</span> tmp2285 = tmp2284 ^ tmp2186;<br>    <span class="hljs-keyword">var</span> tmp2286 = tmp2285 ^ tmp2190;<br>    <span class="hljs-keyword">var</span> tmp2287 = tmp2286 ^ tmp2120;<br>    <span class="hljs-keyword">var</span> tmp2288 = tmp2287 ^ tmp2147;<br>    <span class="hljs-keyword">var</span> tmp2289 = tmp2288 ^ tmp2160;<br>    <span class="hljs-keyword">var</span> tmp2290 = tmp2289 ^ tmp2176;<br>    <span class="hljs-keyword">var</span> tmp2291 = tmp2290 ^ tmp2122;<br>    <span class="hljs-keyword">var</span> tmp2292 = tmp2291 ^ tmp2149;<br>    <span class="hljs-keyword">var</span> tmp2293 = tmp2292 ^ tmp2164;<br>    <span class="hljs-keyword">var</span> tmp2294 = tmp2293 ^ tmp2178;<br>    <span class="hljs-keyword">var</span> tmp2295 = tmp2294 ^ tmp2194;<br>    <span class="hljs-keyword">var</span> tmp2296 = tmp2295 ^ tmp2198;<br>    <span class="hljs-keyword">var</span> tmp2297 = tmp2296 ^ tmp2202;<br>    <span class="hljs-keyword">var</span> tmp2298 = tmp2297 ^ tmp2204;<br>    <span class="hljs-keyword">var</span> tmp2299 = tmp2298 ^ tmp377;<br>    <span class="hljs-keyword">var</span> tmp2300 = tmp2299 ^ tmp2210;<br>    <span class="hljs-keyword">var</span> tmp2301 = tmp2300 ^ tmp2217;<br>    <span class="hljs-keyword">var</span> tmp2302 = tmp2301 ^ tmp2128;<br>    <span class="hljs-keyword">var</span> tmp2303 = tmp2302 ^ tmp2135;<br>    <span class="hljs-keyword">var</span> tmp2304 = tmp2303 ^ tmp2222;<br>    <span class="hljs-keyword">var</span> tmp2305 = tmp2304 ^ tmp2226;<br>    <span class="hljs-keyword">var</span> tmp2306 = tmp2305 ^ tmp2230;<br>    <span class="hljs-keyword">var</span> tmp2307 = tmp2306 ^ tmp2232;<br>    <span class="hljs-keyword">var</span> tmp2308 = tmp2307 ^ tmp2235;<br>    <span class="hljs-keyword">var</span> tmp2309 = tmp2308 ^ tmp2239;<br>    <span class="hljs-keyword">var</span> tmp2310 = tmp2309 ^ tmp2243;<br>    <span class="hljs-keyword">var</span> tmp2311 = tmp2310 ^ tmp2247;<br>    <span class="hljs-keyword">var</span> tmp2312 = tmp2311 ^ tmp2259;<br>    <span class="hljs-keyword">var</span> tmp2313 = tmp2312 ^ tmp2263;<br>    <span class="hljs-keyword">var</span> tmp2314 = tmp2313 ^ tmp2268;<br>    <span class="hljs-keyword">var</span> tmp2315 = tmp2314 ^ tmp2272;<br>    tmp2079 = tmp2315;<br>    <span class="hljs-keyword">var</span> tmp2316 = [tmp2100, tmp2112, tmp2222, tmp2139, tmp2152, tmp2168, tmp2239, tmp2180, tmp2184, tmp2226, tmp2188, tmp2116, tmp2143, tmp2230, tmp2232, tmp2156, tmp2172, tmp2235, tmp2182, tmp2186, tmp2190, tmp2120, tmp2147, tmp2160, tmp2247, tmp2176, tmp2122, tmp2149, tmp2164, tmp2178, tmp2194, tmp2198, tmp2243, tmp2202, tmp2204, tmp377, tmp2210, tmp2217, tmp2128, tmp2135, tmp2259, tmp2263, tmp2268, tmp2272];<br>    <span class="hljs-keyword">var</span> tmp2317 = tmp2316[<span class="hljs-string">&quot;concat&quot;</span>];<br>    <span class="hljs-keyword">var</span> tmp2318 = func120[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2256]);<br>    <span class="hljs-keyword">var</span> tmp2319 = func120[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2265]);<br>    <span class="hljs-keyword">var</span> tmp2320 = [tmp2315];<br>    <span class="hljs-keyword">var</span> tmp2321 = tmp2317[<span class="hljs-string">&quot;apply&quot;</span>](tmp2316, [tmp2318, tmp2319, tmp2320]);<br>    tmp2085 = tmp2321;<br>    <span class="hljs-keyword">var</span> tmp2322 = func1382[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2099]);<br>    <span class="hljs-keyword">var</span> tmp2323 = func1538[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2108]);<br>    tmp2322 += tmp2323;<br>    <span class="hljs-keyword">var</span> tmp2324 = <span class="hljs-title class_">String</span>[<span class="hljs-string">&quot;fromCharCode&quot;</span>];<br>    <span class="hljs-keyword">var</span> tmp2325 = <span class="hljs-number">121</span>;<br>    <span class="hljs-keyword">var</span> tmp2326 = tmp2324[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-title class_">String</span>, [tmp2325]);<br>    <span class="hljs-keyword">var</span> tmp2327 = <span class="hljs-title class_">String</span>[<span class="hljs-string">&quot;fromCharCode&quot;</span>];<br>    <span class="hljs-keyword">var</span> tmp2328 = tmp2327[<span class="hljs-string">&quot;apply&quot;</span>];<br>    <span class="hljs-keyword">var</span> tmp2329 = tmp2328[<span class="hljs-string">&quot;apply&quot;</span>](tmp2327, [<span class="hljs-literal">true</span>, tmp2321]);<br>    <span class="hljs-keyword">var</span> tmp2330 = ee[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2326, tmp2329]);<br>    tmp2322 += tmp2330;<br>    tmp2086 = tmp2322;<br>    <span class="hljs-keyword">var</span> tmp2331 = <span class="hljs-string">&quot;s4&quot;</span>;<br>    <span class="hljs-keyword">var</span> tmp2332 = re[<span class="hljs-string">&quot;apply&quot;</span>](<span class="hljs-literal">true</span>, [tmp2322, tmp2331]);<br>    <span class="hljs-keyword">return</span> tmp2332;<br></code></pre></td></tr></table></figure>
+<p>大概就是这样 一共三千多行 可以很明白的看到他的执行逻辑了</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>他的麻烦点就是变量作用域问题 其他的按部就班的按照他的代码逻辑去改成ast节点的操作就行了</p>
+<h1 id="欢迎关注我的公众号-谢谢大家"><a href="#欢迎关注我的公众号-谢谢大家" class="headerlink" title="欢迎关注我的公众号 谢谢大家"></a>欢迎关注我的公众号 谢谢大家</h1><p><img src="/2024/05/24/dy-decompile/img_8.png" srcset="/img/loading.gif" lazyload alt="img_8.png"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>反编译抖音 a_bogus vmp</div>
+      <div>http://example.com/2024/05/24/dy-decompile/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>故意</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2024年5月24日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2024/06/17/decompile-tx/" title="反编译腾讯vmp">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">反编译腾讯vmp</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/05/18/decompile-xhs/" title="反编译小红书vmp 代码">
+                        <span class="hidden-mobile">反编译小红书vmp 代码</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
